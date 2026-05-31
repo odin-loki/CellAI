@@ -1,0 +1,45 @@
+# Cell AI — Python dependencies
+#
+# Recommended setup (GPU, Python 3.12):
+#   py -3.12 -m venv .venv
+#   .venv\Scripts\activate
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+#   pip install cupy-cuda12x tiktoken
+#   pip install -r requirements.txt
+#
+# CPU-only (Python 3.14):
+#   pip install torch tiktoken
+#   pip install -r requirements.txt
+
+# Core ML
+torch>=2.1.0
+numpy>=1.24.0
+
+# Cell AI specific
+tiktoken>=0.6.0         # Universal BPE tokenizer (GPT-4)
+# CuPy for GPU-parallel partition state evolution (CUDA streams).
+# Install the build matching your CUDA version, e.g.:
+#   CUDA 12.x:  pip install cupy-cuda12x
+#   CUDA 11.x:  pip install cupy-cuda11x
+#   CPU only:   skip — ThreadPoolExecutor fallback is used automatically
+# cupy-cuda12x            # GPU parallel partition evolution
+transformers>=4.35.0    # HuggingFace model utilities
+
+# Data pipelines
+datasets>=2.16.0        # HuggingFace datasets library
+datasketch>=1.6.0       # MinHash deduplication
+
+# Math model
+sympy>=1.12             # Symbolic mathematics
+scipy>=1.11.0           # Scientific computing
+
+# Software model
+networkx>=3.1           # Code dependency graphs
+
+# Analysis & visualisation
+pandas>=2.0.0
+matplotlib>=3.7.0
+
+# Infrastructure
+python-dotenv>=1.0.0    # .env file support
+pytest>=7.4.0           # Testing

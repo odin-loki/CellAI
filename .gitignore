@@ -1,0 +1,104 @@
+# Cell AI — Comprehensive .gitignore
+
+# =====================================================
+# NEVER UPLOAD TO GIT — Large Binary & Data Files
+# =====================================================
+# Log files (text-based but large)
+logs/*.log
+logs/*.txt
+*.log
+
+# Large dataset files (can be gigabytes)
+data/local/
+data/**/*.jsonl
+*.jsonl
+data/*.bin
+data/*.npy
+data/*.hdf5
+data/*.parquet
+data/*.csv
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.npy
+*.npz
+
+# Python bytecode (unnecessary on remote)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Python virtual environment (install with pip, not commit)
+.venv/
+venv/
+ENV/
+env/
+.venv/
+
+# IDE files (don't share these)
+.cursor/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =====================================================
+# Documentation & Site Build Artifacts (Optional Exclusions)
+# =====================================================
+# If you want to generate docs locally, exclude generated files:
+docs/site/
+*.html
+*.md.html
+*_test.html
+*_demo.html
+*.pickle
+*.joblib
+
+# =====================================================
+# Environment & Configuration (Source Control Only)
+# =====================================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.secret
+
+# =====================================================
+# Large Media & Temporary Files
+# =====================================================
+*.zip
+*.rar
+*.tar
+*.gz
+*.tgz
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.cache
+
+# =====================================================
+# Neural Network Weights & Checkpoints (not source code)
+# =====================================================
+weights/
+checkpoints/
+snapshots/
+training/
+experiment/
+experiments/
+
+# =====================================================
+# Temporary Python Files
+# =====================================================
+*.pyc
+*.pyo
+
+# =====================================================
+# Local run logs
+# =====================================================
