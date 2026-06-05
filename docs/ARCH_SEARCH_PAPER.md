@@ -1511,7 +1511,8 @@ Macro PPL is **worse than E22 (227.7)** at the same metric definition — D=1024
 
 | Regime | Exp | text+code NLL | Config |
 |--------|-----|---------------|--------|
-| Reset | **E27** | **7.847** | D=1024, Spectral+Multi+Sparse, 16k total |
+| Reset | **E34** | **7.300** | E27 + zero-init bypass, staged unfreeze (1k freeze / 3k full) |
+| Reset (baseline) | E27 | 7.847 | D=1024, Spectral+Multi+Sparse, 16k total |
 | Continuous (warm) | **E29** | **7.948** | E25 fork + EMA, 4k |
 
 E27 per-domain: text 7.88, code 7.82, math 0.49. Macro PPL 220.1 (math-inflated).
@@ -1532,6 +1533,14 @@ E27 per-domain: text 7.88, code 7.82, math 0.49. Macro PPL 220.1 (math-inflated)
 
 **Conclusion:** Champion recipe unchanged. Bypass needs staged training (Wave 4 E34). Domain banks and resonance do not close the text+code gap.
 
-### 20.4  Wave 4 (in progress)
+### 20.4  Wave 4 (complete, `results_v7.json`)
 
-E33 (E27+16k), E34 (bypass retry), E35 (doc-align aux), hyperband LR screen — see `results_v7.json` and **`docs/ARCH_SEARCH_FAILURE_LOG.md`**.
+| Exp / item | text+code NLL | Δ vs E27 | Verdict |
+|------------|---------------|----------|---------|
+| OOD eval (E27) | 7.847 | 0 | Generalises; no OOD gap |
+| Hyperband H3 | 7.646 | −0.20 | Best 600-step LR screen (5e-5) |
+| **E34 bypass retry** | **7.300** | **−0.55** | **New reset champion** (in-train peak 6.996) |
+| E33 E27+16k | 7.859 | +0.012 | Early-stop; no gain from 32k total |
+| E35 doc-align | 7.864 | +0.017 | Neutral |
+
+**Conclusion:** Staged bypass training is the Wave 4 win. More steps (E33) and doc-align (E35) do not beat E27. See **`docs/ARCH_SEARCH_FAILURE_LOG.md`**.

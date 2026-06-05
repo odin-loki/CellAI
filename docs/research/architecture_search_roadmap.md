@@ -150,16 +150,18 @@ Implementation home: **`arch_search/`** modules and `data/local/arch_search/` ar
 | E31 domain banks | 7.864 | +0.017 | Neutral; routing 24.7% (&lt; chance) |
 | E32 PerFreq D=1024 | 7.870 | +0.023 | Neutral; resonance still no win at scale |
 
-**Champions unchanged:** reset **E27** (7.847), continuous **E29** (7.948 warm).
+**Champions:** reset **E34** (7.300 bypass retry), continuous **E29** (7.948 warm). Baseline reset E27 (7.847).
 
-**Wave 4 in progress** (`run_arch_search_v7.py`, `run_wave4_followup.py`, `results_v7.json`):
+**Wave 4 complete** (`run_arch_search_v7.py`, `run_wave4_followup.py`, `results_v7.json`, ~4h GPU):
 
-| Item | Description |
-|------|-------------|
-| E33 | E27 +16k (32k total), early-stop |
-| E34 | Bypass zero-init, staged unfreeze |
-| E35 | Doc-align auxiliary loss |
-| Hyperband | LR screen 600×3 |
-| Diagnostics | Decode sweep (done), OOD eval |
+| Exp / item | text+code NLL | Verdict |
+|------------|---------------|---------|
+| Diagnostics | OOD 7.847 | No OOD gap vs E27 |
+| Hyperband H3 | 7.646 | Best LR screen (5e-5) |
+| **E34** | **7.300** | **New reset champion** |
+| E33 | 7.859 | No beat; early-stop @ 3.2k |
+| E35 | 7.864 | Neutral |
+
+**Search status:** Architecture-knob sweep largely closed at D=1024 / ~20k steps unless new memory mechanism or much more data.
 
 **Reporting:** `docs/ARCH_SEARCH_FAILURE_LOG.md`, `ARCH_SEARCH_PAPER.md` §20.
