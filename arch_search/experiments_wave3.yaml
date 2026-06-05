@@ -1,0 +1,44 @@
+# Wave 3 — Phase C architecture hypotheses (E30–E32)
+# Champion to beat: E27 reset text+code NLL 7.847
+
+wave: 3
+protocol: arch_search/config/eval_protocol_v1.json
+
+champions:
+  reset: E27
+  continuous: E29
+
+experiments:
+  E30:
+    hypothesis: "Shallow encoder→state bypass preserves modality signal through PDE mixing"
+    regime: reset
+    command: "python -m arch_search.run_arch_search_v6 --train E30"
+    resume_from: E27_D1024_16k.pt
+    train_steps: 4000
+    lr: 5.0e-5
+    config: { use_bypass: true, D: 1024 }
+    headline_baseline: { experiment: E27, text_code_avg_nll: 7.847 }
+    artifacts: [E30_E30_bypass_d1024.pt, results_v6.json]
+
+  E31:
+    hypothesis: "Input-side routing to slow spectral PDE banks beats cellular-state routing"
+    regime: reset
+    command: "python -m arch_search.run_arch_search_v6 --train E31"
+    resume_from: E27_D1024_16k.pt
+    train_steps: 4000
+    lr: 5.0e-5
+    config: { use_domain_banks: true, D: 1024 }
+    headline_baseline: { experiment: E27, text_code_avg_nll: 7.847 }
+    routing_metric: routing_accuracy
+    artifacts: [E31_E31_domain_banks_d1024.pt, results_v6.json]
+
+  E32:
+    hypothesis: "PerFreqResonance helps at D>=1024 where more frequency bins matter"
+    regime: reset
+    command: "python -m arch_search.run_arch_search_v6 --train E32"
+    resume_from: E27_D1024_16k.pt
+    train_steps: 4000
+    lr: 5.0e-5
+    config: { resonance_type: per_freq, D: 1024 }
+    headline_baseline: { experiment: E27, text_code_avg_nll: 7.847 }
+    artifacts: [E32_E32_perfreq_d1024.pt, results_v6.json]

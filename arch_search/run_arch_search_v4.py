@@ -454,7 +454,10 @@ def gen_showcase_warm(model: CellAIv3, warm_texts: List[str],
         gen  = model.generate(prompt, max_tokens=48, temperature=0.85,
                               rep_penalty=1.3, noise_std=0.03, reset_state=False)
         cont = gen[len(prompt):]
-        toks = model.encoder.tokenize(cont)
+        try:
+            toks = model.encoder.tokenize(cont)
+        except ValueError:
+            toks = model.encoder._tok.encode(cont, disallowed_special=())
         div  = len(set(toks)) / max(len(toks), 1)
         results.append({"domain": domain, "prompt": prompt,
                         "continuation": cont, "diversity": div, "warmed": True})
@@ -481,7 +484,10 @@ def gen_showcase(model: CellAIv3, label: str) -> List[Dict]:
         gen  = model.generate(prompt, max_tokens=48, temperature=0.85,
                               rep_penalty=1.3, noise_std=0.03)
         cont = gen[len(prompt):]
-        toks = model.encoder.tokenize(cont)
+        try:
+            toks = model.encoder.tokenize(cont)
+        except ValueError:
+            toks = model.encoder._tok.encode(cont, disallowed_special=())
         div  = len(set(toks)) / max(len(toks), 1)
         results.append({"domain": domain, "prompt": prompt,
                         "continuation": cont, "diversity": div})

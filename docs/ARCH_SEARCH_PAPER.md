@@ -1500,3 +1500,38 @@ Macro PPL is **worse than E22 (227.7)** at the same metric definition — D=1024
 **Architecture directions.** Domain-specific PDE banks, contrastive document objectives, and re-testing PerFreqResonance at D≥1024 remain as in §15–§16.
 
 **Roadmap (living document).** A consolidated post–Round 4 plan—metric hierarchy, phased waves, tooling, and success criteria—is in **`docs/research/architecture_search_roadmap.md`**.
+
+---
+
+## 20  Round 5+ (Waves 1–3, protocol `arch_eval_v1`)
+
+**Protocol.** Headline metric = **text+code avg NLL** (n=50/modality, reset) or **stream-matched warm** (continuous: burn≥4096, detach/64). See `arch_search/config/eval_protocol_v1.json`.
+
+### 20.1  Champions (2026-06)
+
+| Regime | Exp | text+code NLL | Config |
+|--------|-----|---------------|--------|
+| Reset | **E27** | **7.847** | D=1024, Spectral+Multi+Sparse, 16k total |
+| Continuous (warm) | **E29** | **7.948** | E25 fork + EMA, 4k |
+
+E27 per-domain: text 7.88, code 7.82, math 0.49. Macro PPL 220.1 (math-inflated).
+
+### 20.2  Wave 2 (training dynamics)
+
+- **E27** beat E22 (7.878) and E24 — D=1024 + long training is the scaling win.
+- **E28** (E22+16k, D=512): 7.863 — longer D=512 does not beat E27.
+- **E29** beat E25 warm (8.043); E26-style resume without EMA regressed.
+
+### 20.3  Wave 3 (v3.2 hypotheses)
+
+| Exp | text+code NLL | Δ vs E27 | Verdict |
+|-----|---------------|----------|---------|
+| E30 bypass | 133.6 | +125.7 | **Failed** — see failure log |
+| E31 domain banks | 7.864 | +0.017 | Neutral; routing 24.7% |
+| E32 PerFreq D=1024 | 7.870 | +0.023 | Neutral |
+
+**Conclusion:** Champion recipe unchanged. Bypass needs staged training (Wave 4 E34). Domain banks and resonance do not close the text+code gap.
+
+### 20.4  Wave 4 (in progress)
+
+E33 (E27+16k), E34 (bypass retry), E35 (doc-align aux), hyperband LR screen — see `results_v7.json` and **`docs/ARCH_SEARCH_FAILURE_LOG.md`**.

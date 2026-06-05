@@ -53,6 +53,7 @@ import torch.nn.functional as F
 from cellai_core.base         import CellularPDE, ModelParams
 from cellai_core.partition    import PartitionManager
 from cellai_core.spectral_pde import SpectralPDE
+from cellai_core.domain_banks import BankedSpectralPDE
 
 
 class MultiScalePartitionManager(nn.Module):
@@ -77,21 +78,24 @@ class MultiScalePartitionManager(nn.Module):
         N_slow:   int = 2,
         D_slow:   int = 256,
         K_slow:   int = 8,
-        device:   Optional[str] = None,
-        pde_type: str = "dense",   # "dense" | "spectral"
+        device:           Optional[str] = None,
+        pde_type:         str = "dense",   # "dense" | "spectral"
+        use_domain_banks: bool = False,
+        num_domains:      int = 3,
     ):
         super().__init__()
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        self.D_out    = D_out
-        self.N_fast   = N_fast
-        self.D_fast   = D_fast
-        self.N_slow   = N_slow
-        self.D_slow   = D_slow
-        self.K_slow   = K_slow
-        self.pde_type = pde_type
-        self.dev      = torch.device(device)
+        self.D_out            = D_out
+        self.N_fast           = N_fast
+        self.D_fast           = D_fast
+        self.N_slow           = N_slow
+        self.D_slow           = D_slow
+        self.K_slow           = K_slow
+        self.pde_type         = pde_type
+        self.use_domain_banks = use_domain_banks
+        self.dev              = torch.device(device)
 
         # Fast and slow partition systems — spectral or dense PDE
         fast_params = ModelParams(num_partitions=N_fast, state_size=D_fast, device=device)
@@ -99,7 +103,12 @@ class MultiScalePartitionManager(nn.Module):
 
         if pde_type == "spectral":
             self.fast_pm = _SpectralPartitionWrapper(fast_params)
-            self.slow_pm = _SpectralPartitionWrapper(slow_params)
+            if use_domain_banks:
+                self.slow_pm = _BankedSpectralPartitionWrapper(
+                    slow_params, num_banks=num_domains,
+                )
+            else:
+                self.slow_pm = _SpectralPartitionWrapper(slow_params)
         else:
             self.fast_pm = PartitionManager(fast_params)
             self.slow_pm = PartitionManager(slow_params)
@@ -123,7 +132,11 @@ class MultiScalePartitionManager(nn.Module):
         # Step counter for K-fold update
         self.register_buffer("_step_count", torch.tensor(0, device=self.dev))
 
-    def step(self, inp: torch.Tensor) -> None:
+    def step(
+        self,
+        inp: torch.Tensor,
+        domain_w: Optional[torch.Tensor] = None,
+    ) -> None:
         """
         One multi-scale cellular step.
 
@@ -133,6 +146,7 @@ class MultiScalePartitionManager(nn.Module):
 
         Args:
             inp: (D_out,) input embedding
+            domain_w: optional (K,) mixture for slow banked spectral PDE
         """
         inp = inp.to(self.dev)
 
@@ -152,7 +166,10 @@ class MultiScalePartitionManager(nn.Module):
         if cnt % self.K_slow == 0:
             fast_agg = self.fast_pm.aggregate()                  # (D_fast,)
             slow_inp = inp_slow + self.fast_to_slow(fast_agg)    # (D_slow,)
-            self.slow_pm.step(slow_inp)
+            if self.use_domain_banks and domain_w is not None:
+                self.slow_pm.step(slow_inp, domain_w=domain_w)
+            else:
+                self.slow_pm.step(slow_inp)
 
         self._step_count += 1
 
@@ -192,8 +209,38 @@ class _SpectralPartitionWrapper(nn.Module):
         self.pde    = SpectralPDE(self.N, self.D).to(dev)
         self.register_buffer("state", torch.zeros(self.N, self.D, device=dev))
 
-    def step(self, inp: torch.Tensor) -> torch.Tensor:
+    def step(self, inp: torch.Tensor, domain_w: Optional[torch.Tensor] = None) -> torch.Tensor:
         new_state = self.pde.step(self._buffers["state"], inp, self.params)
+        self._buffers["state"] = new_state
+        return new_state
+
+    def aggregate(self) -> torch.Tensor:
+        return self._buffers["state"].mean(dim=0)
+
+    def reset(self) -> None:
+        self._buffers["state"] = torch.zeros(
+            self.N, self.D,
+            device=self._buffers["state"].device,
+            dtype=torch.float32,
+        )
+
+
+class _BankedSpectralPartitionWrapper(_SpectralPartitionWrapper):
+    """Slow-partition wrapper with input-routed domain filter banks."""
+
+    def __init__(self, params: ModelParams, num_banks: int = 3):
+        nn.Module.__init__(self)
+        self.params = params
+        self.N      = params.num_partitions
+        self.D      = params.state_size
+        dev         = torch.device(params.device)
+        self.pde    = BankedSpectralPDE(self.N, self.D, num_banks=num_banks).to(dev)
+        self.register_buffer("state", torch.zeros(self.N, self.D, device=dev))
+
+    def step(self, inp: torch.Tensor, domain_w: Optional[torch.Tensor] = None) -> torch.Tensor:
+        new_state = self.pde.step(
+            self._buffers["state"], inp, self.params, domain_w=domain_w,
+        )
         self._buffers["state"] = new_state
         return new_state
 

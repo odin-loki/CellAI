@@ -130,4 +130,36 @@ Implementation home: **`arch_search/`** modules and `data/local/arch_search/` ar
 
 ---
 
-*Last aligned with ARCH_SEARCH narrative through Round 4 (E21–E26). Revise this file when Wave 1 protocol versioning lands.*
+*Last updated 2026-06-01.*
+
+**Wave 1** — `arch_eval_v1` protocol, `text+code` headline, harness (`eval_protocol.py`, `harness.py`).
+
+**Wave 2 complete** (`results_v5.json`):
+
+| Exp | Regime | text+code NLL | Notes |
+|-----|--------|---------------|--------|
+| E27 | reset | **7.847** | **Reset champion** (E24 +8k, D=1024) |
+| E28 | reset | 7.863 | E22 +16k — no beat vs E27 |
+| E29 | continuous | **7.948** (warm) | **Continuous champion** (E25 + EMA fork) |
+
+**Wave 3 complete** (`results_v6.json`, `run_arch_search_v6.py`):
+
+| Exp | text+code NLL | vs E27 | Verdict |
+|-----|---------------|--------|---------|
+| E30 bypass | 133.6 | +125.7 | **Failed** (destabilised fine-tune) |
+| E31 domain banks | 7.864 | +0.017 | Neutral; routing 24.7% (&lt; chance) |
+| E32 PerFreq D=1024 | 7.870 | +0.023 | Neutral; resonance still no win at scale |
+
+**Champions unchanged:** reset **E27** (7.847), continuous **E29** (7.948 warm).
+
+**Wave 4 in progress** (`run_arch_search_v7.py`, `run_wave4_followup.py`, `results_v7.json`):
+
+| Item | Description |
+|------|-------------|
+| E33 | E27 +16k (32k total), early-stop |
+| E34 | Bypass zero-init, staged unfreeze |
+| E35 | Doc-align auxiliary loss |
+| Hyperband | LR screen 600×3 |
+| Diagnostics | Decode sweep (done), OOD eval |
+
+**Reporting:** `docs/ARCH_SEARCH_FAILURE_LOG.md`, `ARCH_SEARCH_PAPER.md` §20.

@@ -1,0 +1,27 @@
+# CellularAI architecture search — experiment registry (E27+)
+# Protocol: arch_search/config/eval_protocol_v1.json
+
+protocol: arch_eval_v1
+
+champions:
+  reset: { id: E27, text_code_nll: 7.847, checkpoint: E27_D1024_16k.pt }
+  continuous: { id: E29, text_code_nll: 7.948, checkpoint: E29_ContinuousD512_EMA.pt }
+
+wave2:
+  E27: { command: "python -m arch_search.run_arch_search_v5 --train E27", results: results_v5.json }
+  E28: { command: "python -m arch_search.run_arch_search_v5 --train E28", results: results_v5.json }
+  E29: { command: "python -m arch_search.run_arch_search_v5 --train E29", results: results_v5.json }
+
+wave3:
+  E30: { command: "python -m arch_search.run_arch_search_v6 --train E30", results: results_v6.json, verdict: failed }
+  E31: { command: "python -m arch_search.run_arch_search_v6 --train E31", results: results_v6.json, verdict: neutral }
+  E32: { command: "python -m arch_search.run_arch_search_v6 --train E32", results: results_v6.json, verdict: neutral }
+
+wave4:
+  E33: { command: "python -m arch_search.run_arch_search_v7 --train E33", hypothesis: "E27+16k beats 7.847" }
+  E34: { command: "python -m arch_search.run_arch_search_v7 --train E34", hypothesis: "zero-init bypass staged unfreeze" }
+  E35: { command: "python -m arch_search.run_arch_search_v7 --train E35", hypothesis: "doc-align aux loss" }
+  hyperband: { command: "python -m arch_search.run_arch_search_v7 --hyperband" }
+  diagnostics: { command: "python -m arch_search.run_arch_search_v7 --decode-sweep --ood-eval" }
+
+queue: { command: "python -m arch_search.run_wave4_followup" }

@@ -1,0 +1,29 @@
+{
+  "protocol_id": "arch_eval_v1",
+  "version": 1,
+  "description": "Round 5+ standard eval: reset vs continuous stream-matched protocols",
+  "seed": 42,
+  "tokenizer": "cl100k_base",
+  "reset": {
+    "n_per_modality": 50,
+    "max_tokens": 256,
+    "warm_tokens": 0,
+    "detach_every": null,
+    "stream_burn_tokens": null
+  },
+  "continuous": {
+    "n_per_modality": 50,
+    "max_tokens": 256,
+    "warm_tokens": 128,
+    "detach_every": 64,
+    "stream_burn_tokens": 4096
+  },
+  "champions": {
+    "reset": "E22",
+    "continuous": "E25"
+  },
+  "headline_metric": {
+    "reset": "text_code_avg_nll",
+    "continuous": "text_code_avg_nll"
+  }
+}

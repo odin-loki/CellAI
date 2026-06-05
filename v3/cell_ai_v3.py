@@ -175,6 +175,12 @@ class V3Config:
     # Generation parameters
     gen_rep_penalty:  float = 1.3    # repetition penalty (1.0 = off)
     gen_noise_std:    float = 0.03   # stochastic state noise std (0.0 = off)
+    # Wave 3 / v3.2 architecture switches
+    use_bypass:       bool = False   # encoder→state skip (modality signal survival)
+    use_domain_banks: bool = False   # input-routed spectral banks on slow PDE
+    num_domains:      int  = 3
+    use_doc_align:    bool = False   # cosine align cellular state to token embedding
+    lambda_doc:       float = 0.05
     # Extra description for the paper
     label:   str   = "v3_base"
 
@@ -221,14 +227,16 @@ class CellAIv3(nn.Module):
         # ── Partition system ──────────────────────────────────────────────
         if self.cfg.partition_type == "multiscale":
             self.partitions = MultiScalePartitionManager(
-                D_out    = D,
-                N_fast   = self.cfg.N_fast,
-                D_fast   = self.cfg.D_fast,
-                N_slow   = self.cfg.N_slow,
-                D_slow   = self.cfg.D_slow,
-                K_slow   = self.cfg.K_slow,
-                device   = str(self.device),
-                pde_type = self.cfg.pde_type,   # pass spectral/dense through
+                D_out            = D,
+                N_fast           = self.cfg.N_fast,
+                D_fast           = self.cfg.D_fast,
+                N_slow           = self.cfg.N_slow,
+                D_slow           = self.cfg.D_slow,
+                K_slow           = self.cfg.K_slow,
+                device           = str(self.device),
+                pde_type         = self.cfg.pde_type,
+                use_domain_banks = self.cfg.use_domain_banks,
+                num_domains      = self.cfg.num_domains,
             )
             self._multiscale = True
         else:
@@ -255,6 +263,20 @@ class CellAIv3(nn.Module):
 
         # ── Output projection ─────────────────────────────────────────────
         self.output_proj = nn.Linear(D, D)
+
+        # ── Wave 3: bypass + input-side domain router ─────────────────────
+        if self.cfg.use_bypass:
+            self.bypass_proj = nn.Linear(D, D, bias=False)
+            nn.init.zeros_(self.bypass_proj.weight)   # zero passthrough at init
+            self.log_alpha_bypass = nn.Parameter(torch.tensor(-8.0))  # sigmoid≈0.0003
+        else:
+            self.bypass_proj = None
+
+        if self.cfg.use_domain_banks:
+            from cellai_core.domain_banks import InputDomainRouter
+            self.domain_router = InputDomainRouter(D, self.cfg.num_domains)
+        else:
+            self.domain_router = None
 
         # ── v2/v3 extensions ──────────────────────────────────────────────
         if self.cfg.resonance_type == "per_freq":
@@ -298,14 +320,25 @@ class CellAIv3(nn.Module):
 
     def cellular_step(self, encoded: torch.Tensor) -> torch.Tensor:
         """One full forward pass through all components."""
-        # Partition step
-        self.partitions.step(encoded)
+        domain_w = None
+        if self.domain_router is not None:
+            domain_w = self.domain_router(encoded)
+
+        # Partition step (slow banks receive domain_w when enabled)
+        if self._multiscale and domain_w is not None:
+            self.partitions.step(encoded, domain_w=domain_w)
+        else:
+            self.partitions.step(encoded)
+
         agg = self.partitions.aggregate()
 
         # Memory + Hebbian
         memory = self.memory_formation(encoded, agg)
         out    = self.metaplasticity(agg, memory, encoded)
         base   = self.output_proj(out)
+
+        if self.bypass_proj is not None:
+            base = base + torch.sigmoid(self.log_alpha_bypass) * self.bypass_proj(encoded)
 
         # Extensions — applied unconditionally (no log_alpha_ext suppressor)
         if self.resonance is not None:
@@ -478,6 +511,10 @@ class CellAIv3(nn.Module):
                 logits = state @ self.encoder.embedding.weight.t()
                 target = seg_ids[t_local + 1].unsqueeze(0)
                 seg_loss = seg_loss + F.cross_entropy(logits.unsqueeze(0), target)
+                if self.cfg.use_doc_align:
+                    seg_loss = seg_loss + self.cfg.lambda_doc * (
+                        1.0 - F.cosine_similarity(state, inp.detach(), dim=0)
+                    )
                 token_count += 1
 
             (seg_loss / max(seg_end - seg_start, 1)).backward()
@@ -526,6 +563,8 @@ class CellAIv3(nn.Module):
             "hebbian_type":   self.cfg.hebbian_type,
             "partition_type": self.cfg.partition_type,
             "resonance_type": self.cfg.resonance_type,
+            "use_bypass":     self.cfg.use_bypass,
+            "use_domain_banks": self.cfg.use_domain_banks,
             "n_params":       n_params,
             "state_size":     self.params.state_size,
             "num_partitions": self.params.num_partitions,
