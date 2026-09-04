@@ -12,6 +12,7 @@ Entry points:
 from setuptools import setup, find_packages
 
 setup(
+    license="AGPL-3.0-or-later",
     name="cell-ai",
     version="1.0.0",
     description="Cell AI — cellular computation AI framework (v1/v2/v3)",
