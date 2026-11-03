@@ -336,11 +336,11 @@ All figures are CPU, 4 threads, medians; ±20–30% container noise.
 | Model (D = 64 probe) | PDE grad norm (step 10 → 2000) | output_proj grad norm | Ratio |
 |---|---|---|---|
 | v1 | W 1.3e-5 → 8.8e-5 | 103 → 127 | ~10⁻⁶–10⁻⁷ |
-| E20-like | fast 3.3e-3 / slow 3.5e-4 at step 2000 | 0.91 | ~10⁻³–10⁻⁴ |
-| E34-like | fast 0.17 → 3.2e-3 | 128 → 0.48 | 1e-3 → 7e-3 |
+| E20-like | fast 0.05 → 1.5e-3; slow 2.1e-3 at step 2000 | 34.6 → 1.62 | ~10⁻³ |
+| E34-like | fast 0.05 → 5.1e-3; slow 7.9e-4 at step 2000 | 34.6 → 1.24 | ~10⁻³–4·10⁻³ |
 
 - The dense-PDE "gradient starvation" the paper reports is reproduced, and is worse than reported.
-- The cross-scale links end at about 1e-6 (E20-like: `slow_to_fast` 2.9e-6, `fast_to_slow` 1.5e-6; 4e-8 in the E14-like run), so the slow stream is effectively disconnected.
+- The cross-scale links (`slow_to_fast`, `fast_to_slow`) end at 1.5e-6 to 4.2e-5 across runs (4e-8 in the E14-like run), 3–5 orders of magnitude below the output projection, so the slow stream is only weakly coupled.
 - The resonance phase sits at a stationary point at initialisation (∂L/∂φ = −2.3e-6 at φ = 0, since $\frac{d}{d\phi}\cos\phi = 0$). Kuramoto `natural_freq` gets exactly 0. `MemoryFormation` detaches its inputs.
 
 ---
@@ -485,12 +485,12 @@ Every model was trained on the same 128 k tokens (the repository's 26 original d
 | Transformer, 2 layers (under-trained at this budget) | 8.028 |
 | v1 / v2 / v3-default | 10.69 / 10.66 / 10.69 |
 | v3 E14-like (spectral + multiscale + full Hebbian + per-freq. resonance) | 7.916 |
-| **v3 E20-like** (spectral + multiscale + sparse Hebbian) | **7.872** |
-| v3 E34-like (+ bypass) | 7.740 |
+| **v3 E20-like** (spectral + multiscale + sparse Hebbian) | **7.905** |
+| v3 E34-like (+ bypass) | 7.783 |
 
 ![Training probe](figures/fig2_training_probe.png)
 
-*The figure's "v3_E20like" curve is the E14-like configuration (v1.0 label); the corrected E20-like run is in `data/train_v3_E20like_corrected.json`.*
+*The E20-like and E34-like runs use the corrected probe, which discards SparseHebbian updates accumulated on validation windows. With that leak (v1.0 and an intermediate run) they scored 0.03–0.04 nats better (7.872, 7.740). The v1.0 "E20-like" curve was the E14-like configuration and is relabelled. Run-to-run variation between repeats is about ±0.03 nats.*
 
 - The v3 recipes are a large improvement over v1/v2, confirming the *direction* of the E0 → E20 ladder.
 - **No Cell variant beats a stateless bigram model.** v3 with the default config reproduces v1 bit for bit.
@@ -878,7 +878,7 @@ python docs/audit/build/build_pdf.py
 | `data/experiments.csv` | 38 rows: id, wave, change, D, steps, params, macro NLL/PPL, text+code NLL, latency, outcome, source, notes |
 | `data/profiling_results.json` | Runtime measurements (v1.0 run; E20 rows there are the E14-like configuration) |
 | `data/profiling_E20_corrected.json` | Corrected E20 benchmark and profiler output |
-| `data/train_v3_E20like_corrected.json` | Corrected E20-like training-probe run |
+| `data/train_v3_E20like_corrected.json`, `data/train_v3_E34like_corrected.json` | Corrected E20-like and E34-like training-probe runs |
 | `data/ngram_split_A_v1-v4.json`, `data/ngram_split_B_v5-v7.json` | Baseline NLLs per modality, 50-doc and full eval sets, sampling s.d. |
 | `data/spacing_effect_results.json` | Massed-spaced simulation outputs |
 | `figures/fig1–fig8` | Baselines, training probe, parameters, PDE scaling, Hebbian scaling, best-so-far, outcomes by wave, spacing effect |
