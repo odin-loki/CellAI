@@ -1,8 +1,11 @@
 # Zenodo upload checklist
 
-**Files to upload**
+**Files to upload (both)**
 - `CELLAI_AUDIT_PAPER.pdf`: the paper (build with `python docs/audit/build/build_pdf.py`).
-- Optional: a zip of `docs/audit/` (Markdown source, figures, data, scripts) as supplementary material.
+- `CellAI-audit-v1.1.zip`: the supplementary archive the paper cites (build with
+  `python docs/audit/build/make_archive.py --ideas <Ideas clone> --cypha <Cypha clone>`). It contains the
+  repository with full git history, this study's scripts and data, and provenance material, so the record
+  does not depend on any GitHub repository.
 
 **Suggested metadata** (machine-readable copy: `zenodo_metadata.json`)
 
@@ -17,6 +20,6 @@
 | Language | English |
 | Keywords | CellAI; biologically inspired AI; cellular memory; massed-spaced effect; spacing effect; Hebbian plasticity; BCM; reaction-diffusion; language modelling; n-gram baselines; evaluation leakage; reproducibility |
 | Licence | CC BY 4.0 (suggested for text and figures; code in the repository stays AGPL-3.0-or-later) |
-| Related identifiers | `isSupplementedBy` https://github.com/odin-loki/CellAI ; `references` https://doi.org/10.1038/s41467-024-53922-x (Kukushkin et al., 2024) |
+| Related identifiers | `references` https://doi.org/10.1038/s41467-024-53922-x (Kukushkin et al., 2024). No GitHub links: the code and data are in the zip |
 
-**Before uploading:** Zenodo DOIs are permanent. Re-read the Revision note and the Statements section, and decide whether to also link a GitHub release of the exact commit that contains `docs/audit/`.
+**Before uploading:** Zenodo DOIs are permanent. Re-read the Revision note and the Statements section, and check the archive with `sha256sum -c SHA256SUMS` after unzipping.

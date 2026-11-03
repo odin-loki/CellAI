@@ -4,18 +4,39 @@
     "publication_type": "report",
     "title": "From Cellular Memory to Language Modelling: An Independent Profile, Biological Assessment and Audit of CellAI",
     "creators": [
-      {"name": "FILL IN: Family name, Given name", "affiliation": "FILL IN or remove", "orcid": "FILL IN or remove"}
+      {
+        "name": "FILL IN: Family name, Given name",
+        "affiliation": "FILL IN or remove",
+        "orcid": "FILL IN or remove"
+      }
     ],
-    "description": "Independent profile, data-mining study, biological assessment and audit of CellAI, a language model built from the biology of non-neural cellular memory (Kukushkin et al., 2024, Nat. Commun. 15:9635). We trace the provenance from the massed-spaced experiment to the code and test the founding protocols on CellAI's own dynamics: the core equation is provably exposure-only and the implemented PDEs show no spacing effect. We then profile the code, recover the raw results, and build count-based baselines under the project's exact data and protocol. The reported text+code champions (7.85-8.04 nats/token) score at the level of a unigram model (7.87-7.91); the best run (E34) gains from a bypass around the cellular core. Every Wave 2-4 result is evaluated on documents ~85% of which were in ancestor checkpoints' training data. Headline figures (966,000x; 125.8M parameters; E20 macro NLL 5.190) are corrected. Produced with AI assistance (Claude Code); see the paper's statements.",
+    "description": "Independent profile, data-mining study, biological assessment and audit of CellAI, a language model built from the biology of non-neural cellular memory (Kukushkin et al., 2024, Nat. Commun. 15:9635). We trace the provenance from the massed-spaced experiment to the code and test the founding protocols on CellAI's own dynamics: the core equation is provably exposure-only and the implemented PDEs show no spacing effect. We then profile the code, recover the raw results, and build count-based baselines under the project's exact data and protocol. The reported text+code champions (7.85-8.04 nats/token) score at the level of a unigram model (7.87-7.91); the best run (E34) gains from a bypass around the cellular core. Every Wave 2-4 result is evaluated on an eval set ~85% of which lies in an ancestor checkpoint's training split (~45% actually trained on). Headline figures (966,000x; 125.8M parameters; E20 macro NLL 5.190) are corrected. Produced with AI assistance (Claude Code); see the paper's statements.",
     "version": "1.1",
     "publication_date": "2026-11-03",
     "language": "eng",
     "access_right": "open",
     "license": "cc-by-4.0",
-    "keywords": ["CellAI", "biologically inspired AI", "cellular memory", "massed-spaced effect", "spacing effect", "Hebbian plasticity", "BCM", "reaction-diffusion", "language modelling", "n-gram baselines", "evaluation leakage", "reproducibility"],
+    "keywords": [
+      "CellAI",
+      "biologically inspired AI",
+      "cellular memory",
+      "massed-spaced effect",
+      "spacing effect",
+      "Hebbian plasticity",
+      "BCM",
+      "reaction-diffusion",
+      "language modelling",
+      "n-gram baselines",
+      "evaluation leakage",
+      "reproducibility"
+    ],
     "related_identifiers": [
-      {"identifier": "https://github.com/odin-loki/CellAI", "relation": "isSupplementedBy", "scheme": "url"},
-      {"identifier": "10.1038/s41467-024-53922-x", "relation": "references", "scheme": "doi"}
-    ]
+      {
+        "identifier": "10.1038/s41467-024-53922-x",
+        "relation": "references",
+        "scheme": "doi"
+      }
+    ],
+    "notes": "Supplementary archive CellAI-audit-v1.1.zip (uploaded with this record) contains the audited repository with full git history, all scripts and data of this study, and provenance material; the paper cites files by their archive paths."
   }
 }

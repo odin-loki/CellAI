@@ -8,9 +8,10 @@ keywords: [CellAI, biologically inspired AI, cellular memory, massed-spaced effe
 
 # From Cellular Memory to Language Modelling: An Independent Profile, Biological Assessment and Audit of CellAI
 
-**Subject:** repository `odin-loki/CellAI` at commit `a109790` (4 commits, 31 May – 4 Sep 2026), with provenance material from `odin-loki/Ideas` and `odin-loki/Cypha`.
+**Subject:** the CellAI repository at commit `a109790` (4 commits, 31 May – 4 Sep 2026), with provenance material from the author's earlier design and research notes.
+**Supplementary archive:** `CellAI-audit-v1.1.zip`, published with this paper ("the archive"). Paths beginning `repository/`, `provenance/` or `paper/` refer to it. Other file paths are relative to `repository/CellAI/` (the audited code, with full git history in `repository/CellAI.bundle`).
 **Version:** 1.1 (3 November 2026). Version 1.0 (same day) lacked the biological and provenance analysis, and contained errors corrected here (see *Revision note*).
-**Artefacts:** every figure, number and script referenced here is in [`docs/audit/`](.): `figures/`, `data/`, `scripts/`.
+**Artefacts:** every figure, number and script referenced here is in `docs/audit/` (`figures/`, `data/`, `scripts/`) inside the archive.
 **Authorship and AI assistance:** see the statement at the end of the paper.
 
 ---
@@ -22,7 +23,7 @@ CellAI is a research codebase that tries to build a language model from the biol
 We studied the full system in three ways:
 
 - **Profiling:** runtime measurements on CPU.
-- **Mining:** static analysis of 12k lines of code and 12.6k lines of documentation, a table of every experiment, and the raw Round 1–4 result files recovered from the author's public git history.
+- **Mining:** static analysis of 12k lines of code and 12.6k lines of documentation, a table of every experiment, and the raw Round 1–4 result files recovered from the author's earlier notes (included in the supplementary archive).
 - **Testing:** count-based baselines under the project's exact data, split and evaluation protocol, and the founding paper's protocols run against CellAI's own dynamics.
 
 **Findings on biology.**
@@ -84,7 +85,7 @@ Neither paper cites the experiment the project is named after. The biology appea
 
 ### 2.1 The founding experiment: Kukushkin et al. (2024)
 
-The repository's own description of itself is "an AI based off a Cellular Learning". Its research plan states that it is "inspired by the groundbreaking findings in Kukushkin et al. (2024) demonstrating massed-spaced learning effects in non-neural cells" (`docs/research/computational_research_plan.md:5`). The author also archived a copy of that paper alongside the code (`odin-loki/Ideas`, `Cell AI/docs/The massed-spaced learning effect in non-neural human cells.md`, commit `79a03a7`; earlier as a PDF in commit `7e24624`).
+The repository's own description of itself is "an AI based off a Cellular Learning". Its research plan states that it is "inspired by the groundbreaking findings in Kukushkin et al. (2024) demonstrating massed-spaced learning effects in non-neural cells" (`docs/research/computational_research_plan.md:5`). The author also kept a copy of that paper with the project files. It is not redistributed in the archive, because the article's licence (CC BY-NC-ND 4.0) does not permit adapted copies; cite it by DOI.
 
 The study (verified against the full text, PMC11544106):
 
@@ -115,15 +116,15 @@ The study sits in a long line of work. These are the concepts a cellular-memory 
 
 ### 2.3 From the experiment to the code: provenance
 
-**Timeline.** Assembled from the papers, the CellAI repository, and the author's public `Ideas` and `Cypha` repositories.
+**Timeline.** Assembled from the papers, the CellAI repository, and the author's earlier notes archived under `provenance/` (sources and commits in `provenance/PROVENANCE.md`).
 
 | Date | Event | Evidence |
 |---|---|---|
 | 7 Nov 2024 | Kukushkin et al. published (received 21 Feb, accepted 28 Oct 2024) | doi:10.1038/s41467-024-53922-x |
-| Nov 2024 – Feb 2025 (inferred) | **Cell AI v1 design documents**: README, "Mathematical Modeling of Cellular Memory Systems for AI Applications" (v2.0), research plans citing Kukushkin as "recently published" | `Ideas/docs/site/Cell AI/Cell AI/*`; CellAI `docs/math_models/core_math_model.md`, `docs/research/*` |
-| 26 Feb 2025 | Cell AI v2 "Thinking", Brain Model and v3/OICFHS design dialogues. Exported claude.ai conversations with **zero lines of executable code**; they presuppose "an already-existing Cell AI" | `Cypha/docs/history/eras/00-prototypes.md` |
+| Nov 2024 – Feb 2025 (inferred) | **Cell AI v1 design documents**: README, "Mathematical Modeling of Cellular Memory Systems for AI Applications" (v2.0), research plans citing Kukushkin as "recently published" | `provenance/original_cell_ai_docs/Cell AI/*`; `docs/math_models/core_math_model.md`, `docs/research/*` |
+| 26 Feb 2025 | Cell AI v2 "Thinking", Brain Model and v3/OICFHS design dialogues. Exported claude.ai conversations with **zero lines of executable code**; they presuppose "an already-existing Cell AI" | `provenance/design_history/00-prototypes.md` |
 | ≤ 3 Apr 2026 | First implementation trained (v1/v2 on math, NLP, code); evaluation report | `docs/EVALUATION_REPORT.md` (dated 2026-04-03) |
-| ≤ 18 Apr 2026 | Architecture search Rounds 1–4 (E0–E26) completed; raw results committed to `Ideas`, untracked a day later | `Ideas` commits `7e24624` (18 Apr), `16e7f86` (19 Apr) |
+| ≤ 18 Apr 2026 | Architecture search Rounds 1–4 (E0–E26) completed; raw results committed to the author's research-notes repository, untracked a day later | `provenance/raw_results/`; commits of 18 and 19 Apr 2026 in `provenance/PROVENANCE.md` |
 | 31 May 2026 | CellAI repository created (single 28k-line commit including both papers) | `eb18003` |
 | 5 Jun 2026 | Waves 2–4 (E27–E35) tooling and results | `429615e`, `7be5113` |
 | 4 Sep 2026 | AGPL-3.0 + commercial licence | `a109790` |
@@ -131,7 +132,7 @@ The study sits in a long line of work. These are the concepts a cellular-memory 
 The author's stated design philosophy, recorded in the v2 design dialogue, matters for what fidelity one should expect:
 
 > "What we are looking for is a model that is bastardised to be computational. It wont be an exact match to that system."
-> (`Cypha/docs/history/archive/prototypes/Cell AI v2 Thinking Convo Log.txt:1015`)
+> (`provenance/design_history/Cell AI v2 Thinking Convo Log.txt:1015`)
 
 We take this at face value. The question is not whether CellAI is a faithful biophysical model (it was never meant to be). The question is whether it keeps the **computational property** that motivated it: sensitivity to the temporal structure of input, and history-dependent persistence.
 
@@ -151,13 +152,13 @@ We take this at face value. The question is not whether CellAI is a faithful bio
 
 The design model is a reasonable *abstract template* of a signalling cascade. The implementation keeps its algebraic shape but not the properties that produce the spacing effect: two pathways, a slow intermediate integrator with an interval-matched time constant, adaptation, and self-sustaining feedback. Our cross-check of the parameter ranges agrees with an independent reviewer's (Appendix C). The 3/12-minute pulses, 10/20/30-minute intervals and 1–4 repetitions match the paper. The concentration ranges bracket the working doses (2 µM, 2 nM) but are not the paper's tested ranges (0.08–50 µM forskolin, 0.08–200 nM TPA).
 
-**Original claims.** The original Cell AI README (`Ideas/docs/site/Cell AI/Cell AI/Readme.html`) claims:
+**Original claims.** The original Cell AI README (`provenance/original_cell_ai_docs/Cell AI/Readme.html`) claims:
 
 - 100–1000× faster than transformers, 50–200× faster than neural networks, and training "2000× faster than transformers in best cases";
 - instant one-shot memory formation, with "no need for traditional backpropagation";
 - 95–99% accuracy on familiar patterns, and 80–90% when compressed to 1–5 MB.
 
-No benchmark, dataset or measurement supporting these figures exists in any of the three repositories. The implemented system is trained by backpropagation through time. Its cost per token is dominated by the vocabulary projection, as in any language model of this vocabulary size (§5.2). Its quality on text and code is at unigram level (§7). The `Cypha` history document independently lists similar unmeasured figures from the same era as "claims that do not hold up".
+No benchmark, dataset or measurement supporting these figures exists anywhere in the archived material. The implemented system is trained by backpropagation through time. Its cost per token is dominated by the vocabulary projection, as in any language model of this vocabulary size (§5.2). Its quality on text and code is at unigram level (§7). The author's design-history notes (`provenance/design_history/00-prototypes.md`) independently list similar unmeasured figures from the same era as "claims that do not hold up".
 
 ### 2.4 Component-by-component biological fidelity
 
@@ -265,7 +266,7 @@ The metric changed because math, scored on generator-templated lines, fell to ab
 | Runtime profiling | CPU (4 cores, 15 GB, no GPU), torch 2.15; median-of-N timings with warm-up; `torch.profiler` | `scripts/profiling/`, `data/profiling_results.json` |
 | Static mining | LOC/complexity (radon), import graph, constructor defaults, `git log`, pytest + coverage | §6 |
 | Experiment table | Every E-number from the papers, configs and scripts; the paper's own verdict, normalised | `data/experiments.csv` |
-| Raw-results recovery | `results.json`–`results_v4.json` (E4–E26) recovered from `odin-loki/Ideas` commit `7e24624` and compared with the papers | §6.4 |
+| Raw-results recovery | `results.json`–`results_v4.json` (E4–E26) recovered from the author's research-notes history and compared with the papers | `provenance/raw_results/`, §6.4 |
 | Split re-derivation | Each driver imported in its natural order; `build_dataset` called on uniquely labelled dummy records; permutations compared | `scripts/split_simulation.py` |
 | Baselines | Records rebuilt as `scripts/run_full_pipeline.py` writes them (wikitext-103 train lines ≥ 50 chars; code_search_net Python with docstring prefix, 8k-char cap), first 6,000 per domain, the project's split permutations, `arch_eval_v1` scoring; Kneser–Ney smoothing (Kneser & Ney, 1995; Chen & Goodman, 1999) | `scripts/ngram_baselines.py`, `data/ngram_split_*.json` |
 | Training probe | v1, v2, v3 variants vs a 2-layer Transformer, a bigram MLP and unigram, all about 6.4 M parameters (D = 64), 128 k tokens of the repository's own docs | `scripts/profiling/train_probe.py` |
@@ -411,7 +412,7 @@ Every test failure is API drift, none numeric:
 
 ### 6.4 Verification against recovered raw results
 
-The raw results for E4–E26 survive in the author's `odin-loki/Ideas` repository history (commit `7e24624`, 18 Apr 2026; untracked the next day). E0–E3 had been overwritten by a resume run. We compared them with the papers:
+The raw results for E4–E26 survive in the history of the author's research-notes repository (committed 18 Apr 2026, untracked the next day). They are archived unchanged in `provenance/raw_results/`. E0–E3 had been overwritten by a resume run. We compared them with the papers:
 
 - **Confirmed.** Per-domain NLLs for E5–E26 match the papers' tables, including E20 (text 8.052, code 7.875, math 0.597) and E24 (7.976 / 7.932 / 0.555). E20's `info` records `hebbian_type = "sparse"`, `resonance_type = "none"`, 53,512,480 parameters, and n = 50 eval documents per modality.
 - **Corrected.** E20's macro NLL is 5.508, not 5.190.
@@ -678,7 +679,12 @@ None of this rules out cellular-memory-inspired computation. It means the hypoth
 - Independent sub-agents re-checked the bibliography against primary sources and adversarially re-checked the quantitative claims.
 - The person who uploads this record is responsible for its content and should list authorship and AI use according to Zenodo's and their institution's policies.
 
-**Data and code availability.** All scripts, derived data and figures are in `docs/audit/` of `https://github.com/odin-loki/CellAI`. Raw Round 1–4 results are in `https://github.com/odin-loki/Ideas` (commit `7e24624`, `Cell AI/data/local/arch_search/`). Third-party data: WikiText-103 (Merity et al., 2016) and CodeSearchNet (Husain et al., 2019) via HuggingFace parquet exports.
+**Data and code availability.** Everything is in the supplementary archive `CellAI-audit-v1.1.zip`, with SHA-256 checksums (`SHA256SUMS`).
+
+- **Audited code:** the full repository with its history (`repository/`).
+- **This study:** scripts, derived data and figures (`repository/CellAI/docs/audit/`).
+- **Provenance:** the raw Round 1–4 results, the original design documents and the design history (`provenance/`, sources in `provenance/PROVENANCE.md`).
+- **Not included:** the Kukushkin et al. (2024) article (cite by DOI). Third-party data must be obtained separately: WikiText-103 (Merity et al., 2016) and CodeSearchNet (Husain et al., 2019), via HuggingFace parquet exports.
 
 **Competing interests.** None declared by the producing agent. The audited project is the uploader's own work.
 
@@ -814,13 +820,13 @@ Yin, J. C. P., Wallach, J. S., Del Vecchio, M., Wilder, E. L., Zhou, H., Quinn, 
 
 Zhang, Y., Liu, R.-Y., Heberton, G. A., Smolen, P., Baxter, D. A., Cleary, L. J., & Byrne, J. H. (2012). Computational design of enhanced learning protocols. *Nature Neuroscience*, 15, 294–297. https://doi.org/10.1038/nn.2990
 
-**Audited and provenance sources.** odin-loki/CellAI, commit `a109790` (https://github.com/odin-loki/CellAI); odin-loki/Ideas, commits `7e24624` and `79a03a7` (https://github.com/odin-loki/Ideas); odin-loki/Cypha, `docs/history/` (https://github.com/odin-loki/Cypha).
+**Supplementary archive.** CellAI-audit-v1.1.zip. The CellAI repository at commit `a109790` plus this audit (`repository/`), source material (`provenance/`) and the paper (`paper/`). Published with this record.
 
 ---
 
 ## Appendix A: Reproducing this study
 
-Run from the repository root. The scripts write outputs into the directories shown.
+Run from `repository/CellAI/` in the archive (or a clone restored from `repository/CellAI.bundle`). The scripts write outputs into the directories shown.
 
 ```bash
 pip install torch tiktoken pyarrow matplotlib radon pytest pytest-cov
@@ -873,6 +879,21 @@ python docs/audit/build/build_pdf.py
 
 ## Appendix B: Files
 
+**Supplementary archive** (`CellAI-audit-v1.1.zip`):
+
+| Path | Content |
+|---|---|
+| `README.md`, `SHA256SUMS` | Archive guide; checksums of every file |
+| `paper/` | This paper (PDF and Markdown source) |
+| `repository/CellAI/` | The audited repository, including this study's `docs/audit/` |
+| `repository/CellAI.bundle` | Full git history (`git clone CellAI.bundle CellAI-git`) |
+| `provenance/raw_results/` | Raw architecture-search results, Rounds 1–4 |
+| `provenance/original_cell_ai_docs/` | Original Cell AI design documents |
+| `provenance/design_history/` | Design-history notes and the v2 design dialogue |
+| `provenance/PROVENANCE.md` | Source revision and SHA-256 of each provenance file |
+
+**This study's files** (`repository/CellAI/docs/audit/`):
+
 | File | Content |
 |---|---|
 | `data/experiments.csv` | 38 rows: id, wave, change, D, steps, params, macro NLL/PPL, text+code NLL, latency, outcome, source, notes |
@@ -884,7 +905,7 @@ python docs/audit/build/build_pdf.py
 | `figures/fig1–fig8` | Baselines, training probe, parameters, PDE scaling, Hebbian scaling, best-so-far, outcomes by wave, spacing effect |
 | `scripts/` | Split simulation, n-gram baselines, spacing simulation, experiment-table builder, figures, profiling harness |
 | `scripts/checks/` | Parameter census, mechanistic checks, E20 sensitivity, Hebbian saturation, burn-in overlap |
-| `build/` | PDF build (pandoc → HTML → Chromium) |
+| `build/` | PDF build (pandoc → HTML → Chromium) and archive builder (`make_archive.py`) |
 
 ## Appendix C: Bibliography and claim audit of the original papers (summary)
 
