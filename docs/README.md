@@ -5,6 +5,7 @@
 - [CELLULARAI_PAPER.md](CELLULARAI_PAPER.md) — main architecture paper
 - [ARCH_SEARCH_PAPER.md](ARCH_SEARCH_PAPER.md) — guided architecture search (E0–E26)
 - [EVALUATION_REPORT.md](EVALUATION_REPORT.md) — evaluation notes
+- [audit/CELLAI_AUDIT_PAPER.md](audit/CELLAI_AUDIT_PAPER.md) — independent profile, data-mining study and audit (baselines, split contamination, claims vs code)
 
 - **Runnable pipelines & CLI:** `scripts/` (see `scripts/README.md`), plus **`arch_search/`** for experiment drivers (`python -m arch_search.run_arch_search_v4`, etc.).
 - **Extras:** `tools/` (e.g. Math Question Generator).

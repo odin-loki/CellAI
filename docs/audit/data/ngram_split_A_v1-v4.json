@@ -1,0 +1,38 @@
+{
+ "same_data_as_cellai": {
+  "unigram": {
+   "text_nll_n50": 8.114227618573022,
+   "code_nll_n50": 7.699889962840397,
+   "textcode_n50": 7.90705879070671,
+   "text_nll_all": 8.113118814771932,
+   "code_nll_all": 7.641900274920342,
+   "textcode_all": 7.877509544846137,
+   "n_eval_text": 917,
+   "n_eval_code": 870,
+   "sd_textcode_50doc_subsample": 0.046941663551799746
+  },
+  "bigram_kn": {
+   "text_nll_n50": 6.18236263199917,
+   "code_nll_n50": 4.861732391711083,
+   "textcode_n50": 5.522047511855126,
+   "text_nll_all": 6.084668168970596,
+   "code_nll_all": 5.106356285307463,
+   "textcode_all": 5.59551222713903,
+   "n_eval_text": 917,
+   "n_eval_code": 870,
+   "sd_textcode_50doc_subsample": 0.10251173582571817
+  },
+  "trigram_kn": {
+   "text_nll_n50": 5.864419320305929,
+   "code_nll_n50": 4.117530900757773,
+   "textcode_n50": 4.990975110531851,
+   "text_nll_all": 5.75605533249823,
+   "code_nll_all": 4.405388784219269,
+   "textcode_all": 5.08072205835875,
+   "n_eval_text": 917,
+   "n_eval_code": 870,
+   "sd_textcode_50doc_subsample": 0.1339807238325068
+  }
+ },
+ "train_tokens": 2204477
+}
