@@ -352,7 +352,7 @@ All figures are CPU, 4 threads, medians; ±20–30% container noise.
 
 | Measure | Value |
 |---|---|
-| Python | 73 files / 12,115 lines (8,243 source lines), plus `tools/Math-Gen.py` (5,248 lines) |
+| Python | 73 files / 12,115 lines (8,243 source lines), plus `tools/Math Question Generator/Math-Gen.py` (5,248 lines) |
 | Model core (`cellai_core` + v1/v2/v3) | 1,333 source lines |
 | Drivers (`arch_search` + `scripts`) | 5,634 source lines |
 | Markdown | 31 files, 12,612 lines, 74k words (docs : code words ≈ 1.75 : 1) |
