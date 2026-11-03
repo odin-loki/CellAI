@@ -30,8 +30,15 @@ def build(name):
                         V3Config(pde_type="spectral", hebbian_type="sparse", partition_type="multiscale",
                                  N_fast=2, D_fast=32, N_slow=2, D_slow=64, K_slow=8, label="v3_small"))
     if name == "v3_E20":
+        # True E20 (arch_search/run_arch_search_v3_resume.py:122; confirmed by results_v3.json "info"):
+        # spectral + sparse Hebbian + multiscale, no resonance, 53,512,480 params.
         return CellAIv3(ModelParams(device="cpu", state_size=512, num_partitions=8),
-                        V3Config(label="E20", pde_type="spectral", hebbian_type="full", partition_type="multiscale",
+                        V3Config(label="E20", pde_type="spectral", hebbian_type="sparse", partition_type="multiscale",
+                                 resonance_type="none", N_fast=4, D_fast=256, N_slow=2, D_slow=512, K_slow=8))
+    if name == "v3_E14":
+        # E14 / superseded run_arch_search_v3.py "E20": full Hebbian + per-frequency resonance.
+        return CellAIv3(ModelParams(device="cpu", state_size=512, num_partitions=8),
+                        V3Config(label="E14", pde_type="spectral", hebbian_type="full", partition_type="multiscale",
                                  resonance_type="per_freq", N_fast=4, D_fast=256, N_slow=2, D_slow=512, K_slow=8))
     if name == "v3_E34":
         return CellAIv3(ModelParams(device="cpu", state_size=1024, num_partitions=8),

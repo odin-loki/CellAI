@@ -1,0 +1,85 @@
+{
+ "bench_v3_E20_true_config": {
+  "name": "v3_E20",
+  "D": 512,
+  "N": 8,
+  "total_params": 53512480,
+  "embedding_params": 51341824,
+  "embedding_share": 0.9594364529545257,
+  "non_embedding_params": 2170656,
+  "breakdown": {
+   "encoder": 51341824,
+   "partitions.fast_pm": 68116,
+   "partitions.slow_pm": 265228,
+   "partitions.inp_to_fast": 131072,
+   "partitions.inp_to_slow": 262144,
+   "partitions.slow_to_fast": 131328,
+   "partitions.fast_to_slow": 131584,
+   "partitions.aggregate_proj": 393728,
+   "metaplasticity": 524800,
+   "output_proj": 262656
+  },
+  "fwd_cellular_step": {
+   "median_ms": 1.0565480000650496,
+   "p10_ms": 0.9276569999201456,
+   "p90_ms": 1.391124000065247
+  },
+  "fwd_with_lm_head": {
+   "median_ms": 5.8985479998909796,
+   "p10_ms": 5.301993999864862,
+   "p90_ms": 7.218580000198926
+  },
+  "tokens_per_s_inference": 169.53324784650096,
+  "train_seg64_ms": 4067.4290770000425,
+  "train_seg64_backward_ms": 3630.626740000025,
+  "train_fwd_per_token_ms": 6.825036515625271,
+  "train_bwd_per_token_ms": 56.72854281250039,
+  "train_tokens_per_s": 15.73475499840887,
+  "rss_after_build_mb": 497.06640625,
+  "rss_build_delta_mb": 275.37109375,
+  "peak_rss_mb": 1141.14453125
+ },
+ "bench_v3_E14_config_(v1.0 'E20' rows)": {
+  "name": "v3_E14",
+  "D": 512,
+  "N": 8,
+  "total_params": 53775650,
+  "embedding_params": 51341824,
+  "embedding_share": 0.9547411142403671,
+  "non_embedding_params": 2433826,
+  "breakdown": {
+   "encoder": 51341824,
+   "partitions.fast_pm": 68116,
+   "partitions.slow_pm": 265228,
+   "partitions.inp_to_fast": 131072,
+   "partitions.inp_to_slow": 262144,
+   "partitions.slow_to_fast": 131328,
+   "partitions.fast_to_slow": 131584,
+   "partitions.aggregate_proj": 393728,
+   "metaplasticity": 524800,
+   "output_proj": 262656,
+   "resonance": 263170
+  },
+  "fwd_cellular_step": {
+   "median_ms": 1.1972810000315803,
+   "p10_ms": 0.8592109999199238,
+   "p90_ms": 1.564796000025126
+  },
+  "fwd_with_lm_head": {
+   "median_ms": 9.740237000016805,
+   "p10_ms": 7.008891999930711,
+   "p90_ms": 23.604240000054233
+  },
+  "tokens_per_s_inference": 102.66690635949358,
+  "train_seg64_ms": 12399.453766000079,
+  "train_seg64_backward_ms": 10634.064185999932,
+  "train_fwd_per_token_ms": 27.58421218750229,
+  "train_bwd_per_token_ms": 166.15725290624894,
+  "train_tokens_per_s": 5.16151769326252,
+  "rss_after_build_mb": 496.53515625,
+  "rss_build_delta_mb": 275.3359375,
+  "peak_rss_mb": 1142.8515625
+ },
+ "profiler_train_E20_true_config": "PER_TOKEN_TRAIN_MS {\"per_token_head\": 68.77183985937307, \"batched_head\": 7.531975453126449}\nUSDT:2026-11-03 21:15:40 9035:9035 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-03 21:15:42 9035:9035 SyncActivityProfilerHandler.cpp:46] profiler_stop\n-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  \n                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  \n-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  \n                                               aten::mm        59.22%        1.246s        59.25%        1.247s       1.904ms           655  \n                                             aten::add_        17.07%     359.276ms        17.08%     359.417ms     362.682us           991  \n        autograd::engine::evaluate_function: TBackward0        13.19%     277.639ms        30.81%     648.389ms       2.795ms           232  \n                                            aten::fill_         1.73%      36.392ms         1.73%      36.392ms      81.596us           446  \n                                              aten::add         1.67%      35.078ms         1.67%      35.093ms      60.714us           578  \nautograd::engine::evaluate_function: EmbeddingBackwa...         1.01%      21.160ms         3.56%      74.866ms      74.866ms             1  \n                                     aten::_log_softmax         0.58%      12.151ms         0.58%      12.151ms     379.705us            32  \n                                              aten::mul         0.49%      10.320ms         0.63%      13.347ms      15.629us           854  \n                       aten::_log_softmax_backward_data         0.46%       9.759ms         0.46%       9.759ms     304.975us            32  \n                                            aten::addmm         0.46%       9.698ms         0.48%      10.195ms      77.234us           132  \n                                         aten::_fft_c2c         0.44%       9.276ms         0.46%       9.719ms     138.837us            70  \n                                         aten::_fft_r2c         0.19%       4.016ms         0.26%       5.436ms      50.329us           108  \n                                              aten::sum         0.14%       2.990ms         0.18%       3.793ms       9.207us           412  \n                                                aten::t         0.14%       2.926ms         0.27%       5.671ms       4.777us          1187  \n                                       aten::as_strided         0.13%       2.841ms         0.13%       2.841ms       0.841us          3377  \n-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  \nSelf CPU time total: 2.104s\n\n",
+ "note": "E20 = arch_search/run_arch_search_v3_resume.py:122 (spectral, sparse Hebbian, multiscale, no resonance); confirmed by results_v3.json info. bench_E14 ran concurrently with a training probe (timings inflated)."
+}

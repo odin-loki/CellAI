@@ -20,8 +20,8 @@ E17,R3,Domain-token routing,256,2k,26.2,,,,,failure,ASP §13.4,routing acc 0.335
 E18,R3,Spectral+Multi D=512 8k,512,8k,53.5,5.774,322,,2.705,success,ASP §13.5,
 E19,R3,Spectral+Multi+Sparse+PerFreq,256,2k,26.3,7.172,1303,,3.312,failure,ASP §13.6,worse than E16
 E20,R3,Spectral+Multi+Sparse D=512 8k (champion R3),512,8k,53.5,5.508,246.6,7.964,3.18,success,"ASP §13.7,§17",§13.7/§14 say macro NLL 5.190 but ln(246.6)=5.508 (as §17 states)
-E21,R4,Continuous-context training (unshuffled),256,4k,26.2,7.229,1379,8.067,,partial,ASP §17.1,warm stream-matched eval; cold NLL 1940.9. Macro equals E25 to 3dp
-E22,R4,Resume E20 +8k fine-tune,512,16k,53.5,5.428,227.7,7.893,,success,ASP §17.2,re-evaluated 7.878 under Wave-2 split
+E21,R4,Continuous-context training (unshuffled),256,4k,26.2,7.229,1379,8.067,,partial,ASP §17.1,warm stream-matched eval; cold NLL 1940.9. Macro 7.229392 vs E25 7.229248 in raw results: near-coincidence, per-domain values differ
+E22,R4,Resume E20 +8k fine-tune,512,16k,53.5,5.428,227.7,7.893,,success,ASP §17.2,re-evaluated 7.878 under Wave-2 split; raw results entry hand-entered (rounded values + note); eval split ~85% overlaps E20 training docs
 E23,R4,D=1024 4k,1024,4k,108.0,5.605,272.5,8.053,,failure,ASP §17.3,
 E24,R4,D=1024 8k,1024,8k,108.0,5.488,241.7,7.954,,neutral,ASP §17.4,"beats E20, not E22"
 E25,R4,Continuous D=512 shuffled docs,512,4k,53.5,7.229,1379,8.043,,partial,ASP §17.5,warm eval; continuous-regime baseline
