@@ -54,7 +54,7 @@ ax.legend(fontsize=8, loc="lower right"); fig.tight_layout(); fig.savefig(f"{OUT
 logs = {os.path.basename(f)[6:-5]: json.load(open(f)) for f in sorted(glob.glob(f"{OUT}/train_*.json"))}
 if logs:
     fig, ax = plt.subplots(1, 2, figsize=(11, 4.2))
-    cols = ["#8c564b", "#555555", "#2a6fdb", "#9467bd", "#e07a1f", "#2ca02c", "#d62728"]
+    cols = ["#8c564b", "#555555", "#2a6fdb", "#9467bd", "#e07a1f", "#2ca02c", "#d62728", "#17becf", "#bcbd22"]
     for (n, L), c in zip(logs.items(), cols):
         ax[0].plot([x["step"]*64 for x in L["train"]], [x["nll"] for x in L["train"]], color=c, label=n, lw=1.2)
         ax[1].plot([x["step"]*64 for x in L["val"]], [x["nll"] for x in L["val"]], "o-", color=c, label=n, ms=3)

@@ -1,9 +1,9 @@
 id,wave,change,D,train_steps,params_M,macro_nll,macro_ppl,text_code_nll,ms_per_call,outcome,source,notes
-E0,R1,Dense PDE + full Hebbian baseline (multi-domain),256,2k,25.8,19.3,238000000.0,,1.845,baseline,"ASP §5.1,§6,§14","§5.1 reports macro NLL 13.415 (PPL 669,720); tables use 19.3 = final TRAIN loss. 966,000x figure uses 19.3"
+E0,R1,Dense PDE + full Hebbian baseline (multi-domain),256,2k,25.8,19.3,238000000.0,,1.845,baseline,"ASP §5.1,§6,§14","§5.1 reports macro NLL 13.415 (PPL 669,720); tables use 19.3 = final TRAIN loss. 966,000x = 238M/246.6 (238M = exp(19.29))"
 E1,R1,SpectralPDE replaces dense PDE,256,2k,25.8,12.295,219000.0,,1.976,success,"ASP §5.2,§6",
 E2,R1,SparseHebbian top-k/8,256,2k,25.8,15.094,3600000.0,,2.1,partial,"ASP §5.3,§14",later flagged as bug (hebb_rate too low/deferred)
 E3,R1,MultiScale partitions 4x128 + 2x256 K=8,256,2k,26.2,11.742,126000.0,,2.3,success,ASP §5.4,best R1
-E4,R1,AnnealedRouter (routing head),256,3k,26.8,,,,1.845,failure,"ASP §5.5,§7.3",routing acc = 0.333 (chance)
+E4,R1,AnnealedRouter (routing head),256,3k,26.8,,,,1.845,failure,"ASP §5.5,§7.3",routing acc 0.320 (chance 0.333)
 E5,R1,PerFreqResonance (additive),256,2k,26.0,13.415,670000.0,,2.252,failure,ASP §5.6,"PPL 669,720 == exp(13.415) == E0's true macro: resonance never trained (Bug 1)"
 E6,R1,Dense PDE scale D=512 N=8,512,2k,52.7,,10700000000000.0,,2.081,failure,ASP §5.7,diverged; PPL capped at exp(30)
 E7,R1,Spectral+Sparse+PerFreq D=512,512,2k,52.4,41.317,10700000000000.0,,2.599,failure,ASP §5.8,PPL capped at exp(30)
@@ -18,14 +18,14 @@ E15,R3,Spectral+Multi+PerFreq (bugs fixed),256,2k,26.3,9.269,10603,,3.056,neutra
 E16,R3,Spectral+Multi+Sparse (hebb_rate 0.005),256,2k,26.2,6.76,863,,2.861,success,ASP §13.3,best D=256
 E17,R3,Domain-token routing,256,2k,26.2,,,,,failure,ASP §13.4,routing acc 0.335
 E18,R3,Spectral+Multi D=512 8k,512,8k,53.5,5.774,322,,2.705,success,ASP §13.5,
-E19,R3,Spectral+Multi+Sparse+PerFreq,256,2k,26.3,7.172,1303,,3.312,failure,ASP §13.6,worse than E16
+E19,R3,Spectral+Multi+Sparse+PerFreq,256,2k,26.3,7.172,1303,,3.312,failure,ASP §13.6,worse than E16; raw results_v3 E19_routing acc 0.345
 E20,R3,Spectral+Multi+Sparse D=512 8k (champion R3),512,8k,53.5,5.508,246.6,7.964,3.18,success,"ASP §13.7,§17",§13.7/§14 say macro NLL 5.190 but ln(246.6)=5.508 (as §17 states)
-E21,R4,Continuous-context training (unshuffled),256,4k,26.2,7.229,1379,8.067,,partial,ASP §17.1,warm stream-matched eval; cold NLL 1940.9. Macro 7.229392 vs E25 7.229248 in raw results: near-coincidence, per-domain values differ
-E22,R4,Resume E20 +8k fine-tune,512,16k,53.5,5.428,227.7,7.893,,success,ASP §17.2,re-evaluated 7.878 under Wave-2 split; raw results entry hand-entered (rounded values + note); eval split ~85% overlaps E20 training docs
+E21,R4,Continuous-context training (unshuffled),256,4k,26.2,7.229,1379,8.067,,partial,ASP §17.1,"warm stream-matched eval; cold NLL 1940.9. Macro 7.229392 vs E25 7.229248 in raw results: near-coincidence, per-domain values differ"
+E22,R4,Resume E20 +8k fine-tune,512,16k,53.5,5.428,227.7,7.893,,success,ASP §17.2,re-evaluated 7.878 under Wave-2 split; raw results entry hand-entered (rounded values + note); eval set ~85% inside E20 training split (~45% visited)
 E23,R4,D=1024 4k,1024,4k,108.0,5.605,272.5,8.053,,failure,ASP §17.3,
 E24,R4,D=1024 8k,1024,8k,108.0,5.488,241.7,7.954,,neutral,ASP §17.4,"beats E20, not E22"
 E25,R4,Continuous D=512 shuffled docs,512,4k,53.5,7.229,1379,8.043,,partial,ASP §17.5,warm eval; continuous-regime baseline
-E26,R4,Resume E25 +4k continuous,512,8k,53.5,7.602,2002,8.049,,failure,ASP §17.6,warm PPL regressed 45%
+E26,R4,Resume E25 +4k continuous,512,8k,53.5,7.602,2002,8.549,,failure,ASP §17.6,"warm PPL regressed 45%; paper reports text+code 8.049 but its per-domain values (8.718, 8.379) average 8.549"
 E27,W2,"Resume E24 +8k (D=1024, 16k total)",1024,16k,108.0,,220.1,7.847,,success,ASP §20.1-2,EVAL SPLIT CHANGED (seed 42): ~85% of eval docs in E24's training set
 E28,W2,Resume E22 +16k (D=512),512,32k,53.5,,,7.863,,neutral,ASP §20.2,contaminated split
 E29,W2,E25 fork + EMA (continuous),512,8k,53.5,,,7.948,,success,ASP §20.1-2,continuous champion; contaminated split
@@ -33,7 +33,7 @@ E30,W3,Encoder->state bypass (resume E27),1024,+4k,109.0,,,133.6,,failure,"ASP �
 E31,W3,Input-side domain PDE banks,1024,+4k,,,,7.864,,neutral,ASP §20.3,routing 24.7% (< chance 33%)
 E32,W3,PerFreqResonance at D=1024,1024,+4k,,,,7.87,,neutral,ASP §20.3,
 E33,W4,E27 +16k early-stop,1024,+3.2k,108.0,,,7.859,,failure,ASP §20.4,early-stopped on eval set (n=30)
-E34,W4,"Zero-init bypass, freeze 1k + full 3k",1024,+4k,109.0,,,7.3,,success,ASP §20.4,reset champion; bypass = direct token->logit (bigram) path
+E34,W4,"Zero-init bypass, freeze 1k + full 3k",1024,+4k,109.0,,,7.3,,success,ASP §20.4,reset champion; bypass = learned zero-init projection of current-token embedding into output state (bigram path)
 E35,W4,Doc-align cosine aux loss,1024,+4k,108.0,,,7.864,,neutral,ASP §20.4,
 H3,W4,Hyperband LR screen 600 steps @5e-5,1024,+0.6k,108.0,,,7.646,,diagnostic,ASP §20.4,"n=30 (10/modality), not comparable to n=150 headline"
 OOD,W4,"E27 'OOD' eval (reshuffle of same eval set, seed 99)",1024,-,108.0,,,7.847,,diagnostic,ASP §20.4,not OOD: same eval pool; identical to E27 to 3 dp

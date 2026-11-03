@@ -3,7 +3,8 @@ Usage: python split_simulation.py run_arch_search_v4 > perm_v4.json
 Each script is imported in its natural import order (import-time seeding matters)."""
 import sys, json, os, importlib, io, contextlib, random
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
-tmp = os.path.dirname(os.path.abspath(__file__)) + "/data"
+import tempfile
+tmp = os.path.join(os.environ.get("AUDIT_WORK", tempfile.gettempdir()), "split_dummy_data")
 fields = [("nlp","text",0),("code","content",1),("math","problem",2)]
 # Dummy corpora: 6000 uniquely-identified records per domain, so overlap between splits can be measured.
 os.makedirs(tmp, exist_ok=True)

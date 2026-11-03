@@ -27,15 +27,15 @@ We studied the full system in three ways:
 
 **Findings on biology.**
 
-- **The founding phenomenon is lost.** CellAI's core equation is provably blind to stimulus spacing: its response depends only on total exposure, so spaced and massed training give identical memories (ratio 1.000). The implemented PDEs show no spacing effect either (spaced/massed 0.85–0.96 for the dense PDE; 1.1–1.2 with no consistent order for the spectral PDE). A minimal adapting-kinase → ERK → CREB cascade with positive feedback does reproduce the observed ordering (ITI 10 > 20 > 30 min ≫ massed).
+- **The founding phenomenon is lost.** CellAI's core equation is provably blind to stimulus spacing: its response depends only on total exposure, so spaced and massed training give identical memories (ratio 1.000). The implemented PDEs show no spacing effect either: spaced/massed is 0.60–0.96 for the dense PDE (massed wins), and 1.07–1.31 for the spectral PDE, *rising* with longer intervals (the opposite of the cells' ordering). A minimal adapting-kinase → ERK → CREB cascade with positive feedback does reproduce the observed ordering (ITI 10 > 20 > 30 min ≫ massed).
 - **The "BCM" rule is not BCM.** It can only potentiate. In v1/v2 it drives the Hebbian matrix to the all-ones matrix (rank 1 after about 4k tokens; every entry at the +1 clamp by 20k), which maps every input to the same direction.
-- **Other components have no biological content.** The dense PDE cannot respond to input from its zero initial state. The v2 "resonance", "crystal lattice" and "Kuramoto" terms reduce to a scalar gain, a fixed rank-27 linear map, and an input-independent bias.
+- **Other components have no biological content.** The dense PDE is exactly input-blind at its zero initial state; with its default noise, the input-driven part of the state is about 2% of the noise-driven part. The v2 "resonance", "crystal lattice" and "Kuramoto" terms reduce to a learned but input-independent scalar gain, a rank-27 linear map, and an input-independent bias.
 
 **Findings on language modelling.**
 
-- **Champions score at unigram level.** On the project's own headline metric (held-out text+code NLL), the reported champions score 7.85–8.04 nats/token. A smoothed **unigram** model scores **7.87–7.91** on the same documents; Kneser–Ney bigram and trigram models score **5.46–5.52** and **4.89–4.99**.
-- **The best run bypasses the cell.** The best run, E34 (7.30), gains from a zero-initialised path that adds the current token's embedding straight to the output: a learned bigram path around the cellular core.
-- **Every Wave 2–4 result is contaminated.** About 85% of the eval documents for E22 and E27–E35 were in the training data of their ancestor checkpoints, because scripts seed their shuffles at import time.
+- **Champions score at unigram level.** On the project's own headline metric (held-out text+code NLL), the reported champions score 7.85–8.04 nats/token on average. A smoothed **unigram** model scores **7.87–7.91** on the same documents (the champions are slightly better on text and worse on code); Kneser–Ney bigram and trigram models score **5.46–5.52** and **4.89–4.99**.
+- **The best run bypasses the cell.** The best run, E34 (7.30), gains from a zero-initialised path that adds a learned projection of the current token's embedding to the output state: a bigram path around the cellular core.
+- **Every Wave 2–4 result is contaminated.** About 85% of the eval documents for E22 and E27–E35 lie in an ancestor checkpoint's training split, and about 45% were actually trained on, because scripts seed their shuffles at import time.
 - **Headline figures are wrong.** "966,000×" compares a training loss with a held-out score (the like-for-like ratio is about 2,700×). "125.8 M parameters" is 26.0 M. E20's macro NLL is 5.508 in the raw data, not 5.190.
 
 The project documents its failures unusually candidly, and several of its own diagnoses are confirmed. Its central claims are not supported by the evidence in the repositories: that cellular-memory dynamics learn useful linguistic context, and that the model preserves the biology it was built on. We describe what a faithful and testable version would need.
@@ -50,7 +50,9 @@ Version 1.0 of this audit (committed earlier the same day) is superseded. Change
 - **Corrected E20.** The true E20 is SpectralPDE + MultiScale + **SparseHebbian, no resonance, 53,512,480 parameters** (`arch_search/run_arch_search_v3_resume.py:122`, confirmed by the raw result's `info` field). v1.0 profiled a superseded configuration from `run_arch_search_v3.py` (full Hebbian + per-frequency resonance, 53.78 M parameters). All E20 figures were re-measured.
 - **Corrected the per-modality comparison.** The reset-regime runs are slightly *better* than unigram on text (by 0.01–0.22 nats) and *worse* on code (by 0.15–0.30 nats); the continuous run E25 is worse on both. v1.0 said "no better on text".
 - **Corrected E21 vs E25.** Their warm macro NLLs (7.229392 vs 7.229248) are a genuine near-coincidence with different per-domain values. v1.0 suggested a transcription error.
-- **Corrected the contamination analysis.** v1.0's original split re-derivation used an import order that hid the import-time seed. The corrected table (§9.1) reflects each script's natural import order.
+- **Corrected the contamination analysis.** v1.0's original split re-derivation used an import order that hid the import-time seed. The corrected table (§9.1) reflects each script's natural import order, and separates split overlap (85%) from documents actually trained on (about 45%).
+- **Other corrections from an adversarial re-check:** embedding scale and MemoryFormation (§3); state sensitivity with real embeddings (§8); padding_idx; routing counts; width effect; the 966,000× arithmetic; E0–E7 initial losses; markdown file count; author identities; Fig. 1 now uses per-split baselines; scripts added for every reported check (`scripts/checks/`, `scripts/build_experiments.py`).
+- **New error found in the search paper:** E26's text+code NLL is reported as 8.049, but its own per-domain values (8.718, 8.379) average 8.549.
 
 ---
 
@@ -173,7 +175,7 @@ No benchmark, dataset or measurement supporting these figures exists in any of t
 | MultiScale partitions (fast every token, slow every 8) | Minicolumns; multi-timescale memory | Synaptic and cellular memory spans seconds to days through cascades of processes (Fusi et al., 2005; Benna & Fusi, 2016) | Clockwork-RNN-style update schedule; the slow-stream gradient falls to about 1e-7 (§5.4) | Sound ML idea (Koutník et al., 2014 lineage); slow stream nearly disconnected |
 | Kuramoto oscillators | Buzsáki & Draguhn (2004); Kuramoto (1984) | Coupled phase oscillators; in ML, phases can *be* the representation (Miyato et al., 2025) | $N$ phases with `.detach()` each step; `natural_freq` gets exactly zero gradient; output added as a bias | Input-independent drift |
 | "Resonance" (v2) | Frequency-selective gain | Oscillations bias input selection | $\mathrm{Re}(\mathcal F^{-1}(\mathcal F(s)e^{i\phi})) = \cos\phi \cdot s$ exactly | A scalar gain |
-| Crystal lattice (v2) | Lattice field theory | No biological analogue | Fixed symmetric rank-27 linear map $\Phi^\top \mathrm{diag}(T)\Phi$ | Not biology |
+| Crystal lattice (v2) | Lattice field theory | No biological analogue | Learned but input-independent symmetric rank-27 linear map $\Phi^\top \mathrm{diag}(T)\Phi$ | Not biology |
 | **Spacing effect and forgetting curve** | **The founding phenomenon** | Spaced > massed; repetition slows decay (Kukushkin 2024) | Not modelled; provably absent from the core equation (§2.5) | **Lost** |
 
 ### 2.5 Does CellAI show the massed-spaced effect? An in-silico test
@@ -221,6 +223,8 @@ From the zero initial state used in training and evaluation, the dense PDE produ
 
 CellAI's equations contain none of these in a working form. The design documents name ERK and CREB, but the implemented dynamics are a single leaky stage whose input enters multiplicatively through a sigmoid.
 
+**Robustness.** Table 3 uses unit-scale stimuli. The model's real token embeddings are √D-scaled (about 16× larger). Re-running B and C at that scale (3 seeds) gives the same conclusion. Dense PDE: spaced/massed 0.89 / 0.74 / 0.60 at ITI 10 / 20 / 30, so massed wins. SpectralPDE: 1.07 / 1.20 / 1.31, rising with ITI as a leaky integrator predicts, the opposite of the cells' ordering.
+
 ### 2.6 Machine-learning lineages the CellAI papers do not cite
 
 Several of CellAI's ideas have established, working counterparts. Citing them would sharpen what is new.
@@ -237,9 +241,9 @@ Several of CellAI's ideas have established, working counterparts. Citing them wo
 
 Every version shares the same skeleton. For each token $x_t$ (cl100k_base, $V = 100{,}277$):
 
-1. Embed: $e_t = E[x_t]/\sqrt D$, with the embedding $E$ tied to the output.
+1. Embed: $e_t = \sqrt D\,E[x_t]$ (the code multiplies by √D, `cellai_core/encoder.py:101`; the main paper's "/√D" is wrong), with $E \sim N(0,1)$ and tied to the output.
 2. Advance the partition state with a PDE step, then aggregate to $a_t$.
-3. Memory: $m_t = \tanh(W_m[e_t\Vert a_t])$, with inputs detached.
+3. Memory: $m_t = \sum_s w(s)\,e_{t-s} + \sum_s K(s)\,a_{t-s}$ over a 100-step ring buffer with *fixed* kernels and detached inputs (`cellai_core/memory.py:60-119`; the main paper's learned $\tanh(W_m[\cdot])$ does not exist). $m_t$ only modulates the Hebbian update and threshold, never the output path.
 4. Hebbian layer: $h_t = (W_H e_t)\odot\sigma(Ga_t+b)$, where $W_H$ is changed in place by the outer-product rule.
 5. Output state: $o_t = W_o h_t$ (+ v2/v3 extensions, + optional bypass $\sigma(\alpha)Pe_t$).
 6. Logits: $o_tE^\top$, trained with cross-entropy and truncated BPTT over 64-token segments.
@@ -307,7 +311,7 @@ All figures are CPU, 4 threads, medians; ±20–30% container noise.
 
 - `torch.profiler` on one 32-token E20 training segment: `aten::mm` takes 59% of time and gradient accumulation (`add_`) 17%. **FFT ops take about 0.6%.**
 - The hot path is the tied vocabulary head, run once per token inside the Python time loop.
-- Because the head does not affect the recurrent state, and Hebbian updates are deferred until after `backward()`, one batched head per segment gives the same loss and gradient. It is **4.8× (v1), 9.1× (E20) and 7.3× (E34)** faster.
+- Because the head does not affect the recurrent state, and Hebbian updates are deferred until after `backward()`, one batched head per segment gives the same loss and gradient. It is **4.8× (v1), 8.5–9.1× (E20, two independent measurements) and 7.3× (E34)** faster. Equivalently, 79–88% of training time is avoidable per-token head overhead.
 - The papers' "4.56 ms / 219 calls/s" and "~130k tok/s" time a single cellular step on a pooled encoding of a whole string, not per-token sequence processing.
 
 ### 5.3 Do the complexity claims materialise?
@@ -321,8 +325,8 @@ All figures are CPU, 4 threads, medians; ±20–30% container noise.
 | 1024 | 0.207 | 0.135 | 0.88 | 0.62 |
 | 4096 | 3.23 | 0.35 | 39.7 | 1.50 |
 
-- **SpectralPDE.** Fitted log-log slopes (D ≥ 512) are 1.81 for dense and 0.63 for spectral. Spectral is slower up to D = 512 and only 1.5× faster at D = 1024.
-- **SparseHebbian.** Latency is flat in $k$ (slope 0.02). The implementation forms a dense $D \times D$ outer product and is 20–35% *slower* than the full layer at D ≤ 1024.
+- **SpectralPDE.** Fitted log-log slopes (D ≥ 512) are 1.81 for dense and 0.63 for spectral. Spectral is slower in the forward pass up to D = 512, at parity for forward+backward at D = 512, and at most 1.5× faster at D = 1024.
+- **SparseHebbian.** Latency is flat in $k$ (slope 0.02). The implementation forms a dense $D \times D$ outer product and is 20–35% *slower* than the full layer at D ≤ 1024. The search paper itself notes the dense outer product (Appendix A.2) and a wall-clock gain of only 7–8% (§7.1).
 - **Sequence length.** Cost is linear (slope 0.8–1.0). There is no batching anywhere in training; batch size is 1.
 
 ![Hebbian scaling](figures/fig5_hebbian_scaling.png)
@@ -336,7 +340,7 @@ All figures are CPU, 4 threads, medians; ±20–30% container noise.
 | E34-like | fast 0.17 → 3.2e-3 | 128 → 0.48 | 1e-3 → 7e-3 |
 
 - The dense-PDE "gradient starvation" the paper reports is reproduced, and is worse than reported.
-- The cross-scale links end at 1e-6–1e-7 (E20-like: `slow_to_fast` 2.9e-6, `fast_to_slow` 1.5e-6), so the slow stream is effectively disconnected.
+- The cross-scale links end at about 1e-6 (E20-like: `slow_to_fast` 2.9e-6, `fast_to_slow` 1.5e-6; 4e-8 in the E14-like run), so the slow stream is effectively disconnected.
 - The resonance phase sits at a stationary point at initialisation (∂L/∂φ = −2.3e-6 at φ = 0, since $\frac{d}{d\phi}\cos\phi = 0$). Kuramoto `natural_freq` gets exactly 0. `MemoryFormation` detaches its inputs.
 
 ---
@@ -350,11 +354,11 @@ All figures are CPU, 4 threads, medians; ±20–30% container noise.
 | Python | 73 files / 12,115 lines (8,243 source lines), plus `tools/Math-Gen.py` (5,248 lines) |
 | Model core (`cellai_core` + v1/v2/v3) | 1,333 source lines |
 | Drivers (`arch_search` + `scripts`) | 5,634 source lines |
-| Markdown | 30 files, 12,612 lines, ~74k words (docs : code words ≈ 1.75 : 1) |
+| Markdown | 31 files, 12,612 lines, 74k words (docs : code words ≈ 1.75 : 1) |
 | Highest complexity | `run_arch_search_v4.main` (cyclomatic 50, rank F) |
-| Duplication | Successive `run_arch_search_vN` share 9–61% of their lines and import each other, chaining import-time side effects (§9.1) |
+| Duplication | Successive `run_arch_search_vN` share 16–60% of their distinct lines (difflib similarity 9–36%) and import each other, chaining import-time side effects (§9.1) |
 | Tests | 53 pass, 22 fail, 1 collection error; **17% line coverage**; 0% on `arch_search` and `routing` |
-| Git | 4 commits by one author. Everything to E26 lands in a single 28k-line commit |
+| Git | 4 commits (two author identities, one person). Everything to E26 lands in a single 28k-line commit |
 
 Every test failure is API drift, none numeric:
 
@@ -369,7 +373,7 @@ Every test failure is API drift, none numeric:
 
 | Round/wave | Success rate |
 |---|---|
-| R1 (E0–E7) | 2/7 |
+| R1 (E1–E7; E0 is the baseline) | 2/7 |
 | R2 (E8–E14) | 3/7 |
 | R3 (E15–E20) | 3/6 |
 | R4 (E21–E26) | 1/6 |
@@ -379,26 +383,27 @@ Every test failure is API drift, none numeric:
 
 ![Best-so-far](figures/fig6_best_so_far.png)
 
-1. **Macro NLL hides a plateau.** On text+code the trajectory is flat: E20 7.964 → E22 7.893 → E27 7.847, then eight runs between 7.847 and 7.870, until E34's bypass at 7.300.
+1. **Macro NLL hides a plateau.** On text+code the trajectory is flat: E20 7.964 → E22 7.893 → E27 7.847, and five later runs (E28, E31–E33, E35) land at 7.859–7.870; only E34's bypass (7.300) moves it.
 2. **Three "experiments" are duplicates.** E9 ≡ E1, E12 ≡ E8, and E5 ≡ E0, all identical to full precision in the raw results. This is because the training loop bypassed `cellular_step()`, the paper's own "Bug 1".
-3. **E0–E7 score worse than uniform guessing** (ln V = 11.5 nats) on text and code. Initial losses of 110–2,193 nats come from logits $=sE^\top$ with N(0,1) embeddings.
-4. **Width barely helps.** D = 256 → 1024 improves text+code by about 0.1 nats.
-5. **Routing never learned.** Six routing experiments score 24.7–34.5% on a 3-class task, against 33.3% chance.
+3. **E0 (and, judging by macro NLL, E1–E7) score worse than uniform guessing** (ln V = 11.5 nats) on text and code. Initial losses of 253–2,193 nats come from logits $=sE^\top$ with N(0,1) embeddings and √D-scaled inputs.
+4. **Width barely helps.** D = 512 → 1024 improves text+code by 0.01–0.05 nats at matched steps (E20 → E24 at 8k; E22 → E27 at 16k).
+5. **Routing never learned.** The five reported routing results (E4 0.320, E11 0.333, E17 0.335, E19 0.345 in the raw results, E31 0.247) sit at the 33.3% chance level of a 3-class task.
 
 ### 6.3 Claims vs code
 
 | Claim (source) | Finding |
 |---|---|
-| "125.8 M parameters" (README; main paper §3.5) | **26.0 M** (§5.1) |
-| "E20 … macro PPL 246.6, **966,000×** vs E0" (search paper abstract, §14) | 966,000 = exp(19.3)/246.6, and 19.3 is E0's **final training loss**. E0's held-out macro NLL is 13.415, giving **~2,716×** |
+| "125.8 M parameters" (README; main paper §3.5, which contradicts its own §5.7 and conclusion) | **26.0 M** (§5.1) |
+| "E20 … macro PPL 246.6, **966,000×** vs E0" (search paper abstract, §14) | 966,000 ≈ 238 M / 246.6, where 238 M = exp(19.29) is E0's **final training loss**. E0's held-out macro NLL is 13.415, giving **~2,716×** |
 | E20 macro NLL 5.190 (search paper §13.7, §14) | Raw result: **5.508** (= ln 246.6) |
 | Main paper abstract: PPL "10,000–250,000" | Its own §5.6 reports 450 k–1.18 M |
 | Main paper §5.4: math_v1 and code_v2 both "313.3 → 29.3" | `EVALUATION_REPORT.md`: math_v1 16.83 → 7.00, code_v2 313.32 → 29.27; the row is copied |
 | SpectralPDE "67,600 params, 32× fewer FLOPs" | 65,536 of those parameters are unused; no wall-clock gain below D = 1024 |
-| SparseHebbian "k² = 1,024 updates", "O(D log D)" | Dense $D \times D$ outer product; latency independent of $k$ |
+| SparseHebbian "k² = 1,024 updates", "O(D log D)" | Dense $D \times D$ outer product; latency independent of $k$ (the dense outer product is disclosed in the search paper's Appendix A.2) |
 | "Exactly implements the BCM sliding-threshold rule" (main paper §3.4) | Potentiation-only; not BCM (§2.4, §8.2) |
-| "Online Hebbian adaptation at inference" (main paper §3.4, §6.1) | True for v1/v2 (potentiation only). For v3 champions, SparseHebbian is off in `eval()` |
+| "Online Hebbian adaptation at inference" (main paper §3.4, §6.1) | True for v1/v2 (potentiation only). For v3 champions, SparseHebbian is off in `eval()`, as the main paper's Appendix B and the search paper's §17 disclose, so the headline claim does not apply to v3 |
 | v1 "snapshot/restore for fairness" | W is changed by *every* forward pass, including `chat()` and `benchmark()` |
+| E26 text+code 8.049 (search paper §17.6) | Its per-domain values (8.718, 8.379) average **8.549** |
 | E30 failed from a "random bypass init" (failure log) | The committed code zero-initialises the bypass with α₀ = −8; the stated cause cannot be reproduced from this code |
 | "OOD eval (E27): 7.847, no OOD gap" | Reshuffles the **same** eval set (`run_arch_search_v7.py:216`), and is equal to E27's score to 3 d.p. |
 | Champion of record | README: E20. `eval_protocol_v1.json`: E22/E25. `experiments.yaml`: E27/E29. Search paper §20: E34/E29 |
@@ -464,10 +469,10 @@ Unigram text NLL: 8.114 (A), 8.099 (B). Unigram code NLL: 7.700 (A), 7.638 (B).
 
 **Interpretation.**
 
-- With up to 108 M parameters and 16k training steps, the reset-regime champions predict held-out text+code about as well as a token-frequency table.
+- With up to ~109 M parameters and up to 32k training steps, the reset-regime champions predict held-out text+code, on average, about as well as a token-frequency table.
 - Per modality, they are slightly better than unigram on text and consistently worse on code, the domain where local context matters most (a bigram model cuts code NLL from 7.6 to 4.9).
 - The only run clearly better than unigram has a direct current-token path, and it recovers about a quarter of the gap to a count-based bigram.
-- The 50-document sampling s.d. (≈0.05 unigram, ≈0.1 bigram) shows that most Wave 2–4 decisions, made on differences of 0.012–0.023 nats, are inside the noise.
+- Most Wave 2–4 decisions rest on differences of 0.012–0.023 nats. That is smaller than the unpaired 50-document sampling s.d. (≈0.05 unigram, ≈0.1 bigram). Models are scored on the same documents, so a paired per-document test would be tighter, but none was reported.
 
 ### 7.1 Controlled probe
 
@@ -493,19 +498,19 @@ Every model was trained on the same 128 k tokens (the repository's 26 original d
 
 ---
 
-## 8 Mechanism: why the state carries little
+## 8 Mechanism: why the state carries little input information
 
 ### 8.1 The dense PDE cannot see its input
 
 $dS = \sigma(IW^\top)\odot\tanh(SE^\top) - \gamma S + D\nabla^2 S + \eta\epsilon$.
 
 - **The input only multiplies the state.** The input enters only multiplied by $\tanh(SE^\top)$, which is exactly 0 at $S = 0$, and every sequence starts there. This is the design model's $f_i = \sigma(I-\theta_i)\,g_i(S)$ with $g(0) = 0$. In a cell, basal kinase activity is never zero; in the code it is.
-- **Measured.** With noise off, the state stays exactly 0 for any input. With default noise, two completely different 256-token sequences give states differing by **0.35%**.
+- **Measured.** With noise off, the state stays exactly 0 for any input. With the default noise and real √D-scaled embeddings (v1, 256 tokens), two completely different inputs with the same noise draw give aggregate states differing by **2.3%**. The same input with a different noise draw differs by **144%**. The state is mostly integrated noise (`scripts/checks/e20sens.py`, `mech.py`).
 - **Consequence.** This explains the "gradient starvation" the papers report (∂L/∂W ∝ tanh(SEᵀ) ≈ 0), and why it survived the state-gate fix.
 
 ### 8.2 The Hebbian matrix collapses to rank 1
 
-Every increment of the v1/v2 rule is a positive outer product. Starting from $W \sim N(0, 0.01^2)$ with random inputs, in evaluation mode:
+Every increment of the v1/v2 rule is a positive outer product. Starting from $W \sim N(0, 0.01^2)$ with random inputs, in evaluation mode (`scripts/checks/hebbian_saturation.py`):
 
 | Tokens | Energy in top singular direction | Entries at +1 clamp |
 |---|---|---|
@@ -513,7 +518,7 @@ Every increment of the v1/v2 rule is a positive outer product. Starting from $W 
 | 4,000 | 99.98% | 0% |
 | 20,000 | 100.00% | **100%** ($\lVert W\rVert_F$ = 256 = D) |
 
-After saturation, $W x = (\mathbf 1^\top x)\,\mathbf 1$ for every $x$: all inputs map to the same direction (mean |cos| = 1.000 across 50 random inputs). `EVALUATION_REPORT.md` reports $\lVert W\rVert_F$ = 256.0 for the trained nlp_v1 and code_v2 checkpoints, exactly the fully saturated value. That fits the main paper's finding that every prompt produced the same code tokens ("incinnati-court(track.HashSet …"). The paper attributes this to a "code-domain attractor"; the saturated Hebbian matrix is a more direct explanation. v3's SparseHebbian uses the same positive-only increment (training only), so the same upward drift applies, counterbalanced only by gradient updates.
+After saturation, $W x = (\mathbf 1^\top x)\,\mathbf 1$ for every $x$: all inputs map to the same direction (mean |cos| = 1.000 across 50 random inputs). `EVALUATION_REPORT.md` reports $\lVert W\rVert_F$ = 256.0 for the trained nlp_v1 and code_v2 checkpoints, exactly the fully saturated value. That fits the main paper's finding that every prompt produced the same code tokens ("incinnati-court(track.HashSet …"). The paper attributes this to a "code-domain attractor"; the saturated Hebbian matrix is a more direct explanation. With the model's own √D-scaled token embeddings, the top direction holds 95% of the energy after 2,000 tokens (`mech.py`). v3's SparseHebbian uses the same positive-only increment (training only), so the same upward drift applies, counterbalanced only by gradient updates.
 
 ### 8.3 SpectralPDE is a slow, mostly input-independent integrator
 
@@ -522,7 +527,7 @@ $S \leftarrow S + 0.01\,(\sigma(\cdot) - 0.05\,S + \dots)$.
 - Each token can move each coordinate by at most 0.01.
 - The sigmoid's mean of about 0.5 produces a large common drift (|S| ≈ 19.7 after 256 tokens).
 - The decay time constant ($1/(dt\cdot\gamma)$ = 2,000 tokens) is longer than any 256-token evaluation document.
-- At initialisation, two different inputs give states differing by **0.2%**.
+- At initialisation, with real √D-scaled embeddings in the true E20 configuration, two different 256-token inputs give states differing by **2.9%** (aggregate), **2.7%** (fast stream) and **7.4%** (slow stream).
 
 ### 8.4 Readout
 
@@ -534,31 +539,33 @@ The prediction is $(W_H e_t)\odot\sigma(Ga_t+b) \to W_o \to$ tied logits. When t
 
 ### 9.1 Train/eval contamination through import-time seeding
 
-`build_dataset()` shuffles the 18,000 documents with Python's global `random` and takes the last 15% as eval. Each driver seeds `random` at **import time**, and drivers import one another. Imported in their natural order:
+`build_dataset()` shuffles the 18,000 documents with Python's global `random` and takes the last 15% as eval. Drivers v1–v4 and `v3_resume` seed `random` at **import time**; v5–v7 do not seed but inherit v4's seed through their imports. Imported in their natural order:
 
 - `run_arch_search.py` and v2–v4 resolve to one permutation (**split A**);
 - `run_arch_search_v3_resume.py`, which trained the real E20, and v5–v7 resolve to another (**split B**).
 
 Combined with checkpoint resumption:
 
-| Run | Trained from | Eval split | Eval documents seen in training by the model or its ancestors |
-|---|---|---|---|
-| E20 | scratch, split B | B | 0% |
-| E21, E23–E26 | scratch / E25, split A | A | 0% |
-| **E22** | E20 (split B) | A | **85.3%** |
-| **E27** | E24 (split A) | B | **85.3%** |
-| **E28** | E22 (A-trained) | B | **85.3%** |
-| **E29** | E25 (split A) | B | **85.3%** |
-| **E30–E35, H3, "OOD"** | E27 | B | **85.3%** (inherited) |
+| Run | Trained from | Eval split | Eval docs inside an ancestor's training split | Expected docs actually trained on |
+|---|---|---|---|---|
+| E20 | scratch, split B | B | 0% | 0% |
+| E21, E23–E26 | scratch / E25, split A | A | 0% | 0% |
+| **E22** | E20 (split B) | A | **85.3%** | ≈45% |
+| **E27** | E24 (split A) | B | **85.3%** | ≈45% |
+| **E28** | E22 (A-trained) | B | **85.3%** | ≈45% |
+| **E29** | E25 (split A) | B | **85.3%** | ≈38% |
+| **E30–E35, H3, "OOD"** | E27 | B | **85.3%** (inherited) | ≈45% |
 
-**Every Wave 2–4 number, including the E34 champion, is scored on documents the starting checkpoint was trained on.** Because these models barely beat unigram, the leak probably flatters them only slightly. It still invalidates them as clean held-out evidence.
+Ancestors ran 8k one-document steps over a 15,300-document split, so about 52% of the split was visited: 0.853 × 8000/15300 ≈ 45%. E25's 4k × 256-token continuous run covers about 44% of documents. Among the *scored* first-50-per-modality documents, 87–91% sit in the ancestor split. This assumes the committed import order matches the runs; the search paper (§16.4) notes the runner changed after E22 ran.
+
+**Every Wave 2–4 number, including the E34 champion, is scored on an eval set much of which the starting checkpoint was trained on.** Because these models barely beat unigram, the leak probably flatters them only slightly. It still invalidates them as clean held-out evidence.
 
 ### 9.2 Other protocol issues
 
-- **Test-set model selection.** E33's early stopping, E34's "in-train peak 6.996" and Hyperband's learning-rate choice use the eval set at n = 30 (`training_v7.py:100-118`). E34's headline uses the final model.
-- **"Best" checkpoint.** It is simply the latest: `harness.py:115` promotes whenever `tag == "best"`, which is passed on every eval.
+- **Test-set model selection.** E33's early stopping, E34's "in-train peak 6.996" use the eval set at n = 30 (`run_arch_search_v7.py:105-112, 132-139`); Hyperband selects its learning rate with `_eval_quick(eval_set, n=30)` (`run_arch_search_v7.py:167-188`). E34's headline uses the final model.
+- **"Best" checkpoint.** It is simply the latest: `harness.py:115` promotes whenever `tag == "best"`, which `training_v7.py:106` passes on every eval. No reported number depends on it.
 - **E34's "frozen" phase is not frozen.** `freeze_except` only clears `requires_grad`; the deferred Hebbian update still changes W.
-- **Warm continuous evaluation.** The 4,096-token burn-in is built from the eval set itself.
+- **Warm continuous evaluation.** The 4,096-token burn-in is built from the eval set itself (`run_arch_search_v4.py:330, 352-356`). About 30% of scored documents fall inside their own burn-in (`scripts/checks/burn.py`).
 - **No error bars or seeds.** There is a single seed and no confidence intervals; 0.01–0.02-nat differences are reported as verdicts.
 - **Mixed inference semantics.** v1/v2 evaluate with online Hebbian updates; v3 SparseHebbian evaluates with W frozen.
 
@@ -572,11 +579,11 @@ Combined with checkpoint resumption:
 | High | In-place `W.data` Hebbian updates on a tensor saved for backward bypass autograd's version check, so BPTT uses post-update W | `cellai_core/memory.py` |
 | High | Train/eval split depends on import order (§9.1) | `arch_search/run_arch_search*.py` |
 | High | Positive-only Hebbian rule saturates W to the all-ones matrix (§8.2) | `cellai_core/memory.py:184-187` |
-| Medium | `SpectralPDE.input_gate` unused (65k–1M dead parameters) | `cellai_core/spectral_pde.py:107` |
+| Medium | `SpectralPDE.input_gate` unused (65k–328k dead parameters) | `cellai_core/spectral_pde.py:107` |
 | Medium | `freeze_except` does not stop Hebbian updates | `training_v7.py:132`, `sparse_hebbian.py:174` |
 | Medium | `MetaplasticityLayer` mutates weights in `chat()`/`benchmark()`/`eval()` | `cellai_core/memory.py` |
 | Medium | Dense PDE draws `randn` noise during evaluation (nondeterministic eval) | `cellai_core/base.py` |
-| Low | `padding_idx=0` freezes token 0 (`!`) at zero | `cellai_core/encoder.py:99` |
+| Low | `padding_idx=0` zero-initialises token 0 (`!`) and blocks its input-side gradient; it still learns through the tied output head (negligible impact) | `cellai_core/encoder.py:99` |
 | Low | Registry and tests out of date; `_test_full.py` requires CuPy | `models/registry.py`, `tests/` |
 
 ---
@@ -593,12 +600,12 @@ Combined with checkpoint resumption:
 
 **What the evidence does not support.**
 
-- That the cellular state contributes useful linguistic context.
+- That the cellular state contributes useful linguistic context. No evidence in the repository demonstrates it, and no state ablation was run.
 - That CellAI preserves the biology it was inspired by: the spacing effect and history-dependent forgetting are absent, and the plasticity rule is not BCM.
 - The original speed and accuracy claims, and the O(D log D) and k² efficiency claims as wall-clock benefits.
 - "966,000×", "125.8 M", online Hebbian adaptation in the v3 champions, and the Wave 2–4 rankings as held-out evidence.
 
-**Why the search plateaued.** It optimised components sitting behind a gate whose input carries almost no information (§8). Changing width, steps, routing, resonance or auxiliary losses did not change how much input information reaches the state; the bypass routed around it.
+**Why the search plateaued.** It optimised components sitting behind a gate whose input carries little input-specific information (§8). Changing width, steps, routing, resonance or auxiliary losses did not change how much input information reaches the state; the bypass routed around it.
 
 **A faithful and testable path.** The founding biology says what a cellular memory model should do: be a temporal pattern detector with history-dependent persistence. That gives two clean experiments:
 
@@ -653,8 +660,8 @@ Combined with checkpoint resumption:
 CellAI began from a striking observation: ordinary human cells, not just neurons, distinguish spaced from massed stimulation and remember the difference for a day. The project turned that into a sequence model, documented its journey candidly, and searched 36 configurations. Read against the founding biology, the code, the recovered raw results, correct baselines and a clean split, the evidence shows:
 
 - The implemented dynamics have **lost the founding phenomenon**: the core equation is provably exposure-only, and neither PDE shows a spacing effect.
-- The cellular state carries almost no information about its input, and the Hebbian matrix saturates to rank 1.
-- The best models predict held-out text and code at unigram level; the single meaningful gain comes from bypassing the cell.
+- The cellular state carries little input-specific information (a few percent at initialisation; dominated by noise in the dense PDE), and the v1/v2 Hebbian matrix saturates to rank 1.
+- The best models predict held-out text and code, on average, at unigram level (slightly better on text, worse on code); the single meaningful gain comes from bypassing the cell.
 - The efficiency claims do not materialise at the sizes used.
 - The most recent rankings rest on a contaminated evaluation split.
 
@@ -813,21 +820,55 @@ Zhang, Y., Liu, R.-Y., Heberton, G. A., Smolen, P., Baxter, D. A., Cleary, L. J.
 
 ## Appendix A: Reproducing this study
 
+Run from the repository root. The scripts write outputs into the directories shown.
+
 ```bash
-pip install torch tiktoken pyarrow matplotlib radon pytest
-# Split permutations (dummy labelled records; no data needed)
-python docs/audit/scripts/split_simulation.py run_arch_search_v4 > perm_A.json
-python docs/audit/scripts/split_simulation.py run_arch_search_v5 > perm_B.json
-# N-gram baselines: HF parquet exports of Salesforce/wikitext (wikitext-103-raw-v1/train/0)
-# and code-search-net/code_search_net (python/train/0) in $AUDIT_WORK/dl/;
-# the permutation path is relative to $AUDIT_WORK
-AUDIT_WORK=... python docs/audit/scripts/ngram_baselines.py 0 perm_B.json
-# Massed-spaced test (Fig. 8)
-python docs/audit/scripts/spacing_effect.py out.json && python docs/audit/scripts/plot_spacing.py out.json fig8.png
-# Profiling and training probe
-AUDIT_OUT=out python docs/audit/scripts/profiling/bench_models.py v3_E20
-AUDIT_OUT=out python docs/audit/scripts/profiling/sweeps.py
-AUDIT_OUT=out python docs/audit/scripts/profiling/train_probe.py v3_E20like 2000
+pip install torch tiktoken pyarrow matplotlib radon pytest pytest-cov
+export AUDIT_WORK=$PWD/audit_work AUDIT_OUT=$PWD/audit_out
+mkdir -p $AUDIT_WORK/dl $AUDIT_WORK/leak $AUDIT_WORK/baselines $AUDIT_OUT
+
+# 1. Split permutations (uniquely labelled dummy records, written to $AUDIT_WORK/split_dummy_data/)
+for v in run_arch_search_v4 run_arch_search_v3_resume run_arch_search_v5; do
+  python docs/audit/scripts/split_simulation.py $v > $AUDIT_WORK/leak/n_$v.json; done
+
+# 2. N-gram baselines. Download the HF parquet exports into $AUDIT_WORK/dl/:
+#    wt0.parquet  = Salesforce/wikitext, wikitext-103-raw-v1/train/0.parquet
+#    csn0.parquet = code-search-net/code_search_net, python/train/0.parquet
+python docs/audit/scripts/ngram_baselines.py 0 leak/n_run_arch_search_v4.json   # split A
+python docs/audit/scripts/ngram_baselines.py 0 leak/n_run_arch_search_v5.json   # split B
+python docs/audit/scripts/checks/burn.py 30                                      # burn-in overlap
+
+# 3. Massed-spaced test (Fig. 8)
+python docs/audit/scripts/spacing_effect.py $AUDIT_OUT/spacing.json
+python docs/audit/scripts/plot_spacing.py $AUDIT_OUT/spacing.json $AUDIT_OUT/fig8.png
+
+# 4. Mechanistic checks (sections 5.1, 8)
+python docs/audit/scripts/checks/params.py
+python docs/audit/scripts/checks/mech.py
+python docs/audit/scripts/checks/e20sens.py
+python docs/audit/scripts/checks/hebbian_saturation.py
+
+# 5. Profiling (one model name per call: v1_default v2_default v3_default v3_E20 v3_E34 v1_small ...)
+for m in v1_default v2_default v3_default v3_E20 v3_E34; do
+  python docs/audit/scripts/profiling/bench_models.py $m >> $AUDIT_OUT/bench.jsonl; done
+python docs/audit/scripts/profiling/prof_train.py v3_E20
+python docs/audit/scripts/profiling/sweeps.py
+python docs/audit/scripts/profiling/resonance_check.py
+
+# 6. Training probe (2,000 steps each; names: v1 v2 v3_dense_single v3_E14like v3_E20like v3_E34like transformer bigram)
+for m in v1 v2 v3_E20like v3_E34like transformer bigram; do
+  python docs/audit/scripts/profiling/train_probe.py $m 2000; done
+python docs/audit/scripts/profiling/plots.py
+
+# 7. Experiment table and figures 1, 6, 7
+python docs/audit/scripts/build_experiments.py $AUDIT_OUT
+python docs/audit/scripts/plot_fig1.py $AUDIT_OUT/fig1.png
+
+# 8. Codebase census
+radon raw -s . ; radon cc -s -n D . ; python -m pytest tests -q --cov=. 
+
+# 9. PDF
+python docs/audit/build/build_pdf.py
 ```
 
 ## Appendix B: Files
@@ -841,7 +882,9 @@ AUDIT_OUT=out python docs/audit/scripts/profiling/train_probe.py v3_E20like 2000
 | `data/ngram_split_A_v1-v4.json`, `data/ngram_split_B_v5-v7.json` | Baseline NLLs per modality, 50-doc and full eval sets, sampling s.d. |
 | `data/spacing_effect_results.json` | Massed-spaced simulation outputs |
 | `figures/fig1–fig8` | Baselines, training probe, parameters, PDE scaling, Hebbian scaling, best-so-far, outcomes by wave, spacing effect |
-| `scripts/` | Split simulation, n-gram baselines, spacing simulation, figures, profiling harness |
+| `scripts/` | Split simulation, n-gram baselines, spacing simulation, experiment-table builder, figures, profiling harness |
+| `scripts/checks/` | Parameter census, mechanistic checks, E20 sensitivity, Hebbian saturation, burn-in overlap |
+| `build/` | PDF build (pandoc → HTML → Chromium) |
 
 ## Appendix C: Bibliography and claim audit of the original papers (summary)
 

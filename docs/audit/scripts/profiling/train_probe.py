@@ -69,6 +69,9 @@ def evaluate():
             ids = val[s:s+SEG+1]
             tot += F.cross_entropy(seq_logits(ids), ids[1:], reduction="sum").item(); cnt += SEG
     m.load_state_dict(snap); m.train(was)
+    # SparseHebbian accumulates deferred updates in train mode; discard those from validation windows.
+    if getattr(getattr(m, "metaplasticity", None), "_hebb_accum", None) is not None:
+        m.metaplasticity._hebb_accum = None
     return tot/cnt
 
 opt = torch.optim.AdamW(m.parameters(), lr=LR, weight_decay=1e-2)
