@@ -2,15 +2,15 @@
 title: "From Cellular Memory to Language Modelling: An Independent Profile, Biological Assessment and Audit of CellAI"
 subtitle: "Provenance, profiling, data mining, baselines and evaluation integrity of a biology-inspired sequence model"
 date: "3 November 2026"
-version: "1.1"
+version: "1.0"
 keywords: [CellAI, biologically inspired AI, cellular memory, massed-spaced effect, Hebbian plasticity, BCM, reaction-diffusion, language modelling, n-gram baselines, reproducibility, evaluation leakage]
 ---
 
 # From Cellular Memory to Language Modelling: An Independent Profile, Biological Assessment and Audit of CellAI
 
 **Subject:** the CellAI repository at commit `a109790` (4 commits, 31 May – 4 Sep 2026), with provenance material from the author's earlier design and research notes.
-**Supplementary archive:** `CellAI-audit-v1.1.zip`, published with this paper ("the archive"). Paths beginning `repository/`, `provenance/` or `paper/` refer to it. Other file paths are relative to `repository/CellAI/` (the audited code, with full git history in `repository/CellAI.bundle`).
-**Version:** 1.1 (3 November 2026). Version 1.0 (same day) lacked the biological and provenance analysis, and contained errors corrected here (see *Revision note*).
+**Supplementary archive:** `CellAI-audit.zip`, published with this paper ("the archive"). Paths beginning `repository/`, `provenance/` or `paper/` refer to it. Other file paths are relative to `repository/CellAI/` (the audited code, with full git history in `repository/CellAI.bundle`).
+**Version:** 1.0 (3 November 2026).
 **Artefacts:** every figure, number and script referenced here is in `docs/audit/` (`figures/`, `data/`, `scripts/`) inside the archive.
 **Authorship and AI assistance:** see the statement at the end of the paper.
 
@@ -40,20 +40,6 @@ We studied the full system in three ways:
 - **Headline figures are wrong.** "966,000×" compares a training loss with a held-out score (the like-for-like ratio is about 2,700×). "125.8 M parameters" is 26.0 M. E20's macro NLL is 5.508 in the raw data, not 5.190.
 
 The project documents its failures unusually candidly, and several of its own diagnoses are confirmed. Its central claims are not supported by the evidence in the repositories: that cellular-memory dynamics learn useful linguistic context, and that the model preserves the biology it was built on. We describe what a faithful and testable version would need.
-
----
-
-## Revision note (v1.0 → v1.1)
-
-Version 1.0 of this audit (committed earlier the same day) is superseded. Changes:
-
-- **Added:** the biological roots and provenance (§2), the in-silico massed-spaced test (§2.5, Fig. 8), the Hebbian saturation result (§8), verification against recovered raw results (§6.4), a bibliography audit of the original papers (§6.5, Appendix C), and a full reference list with DOIs.
-- **Corrected E20.** The true E20 is SpectralPDE + MultiScale + **SparseHebbian, no resonance, 53,512,480 parameters** (`arch_search/run_arch_search_v3_resume.py:122`, confirmed by the raw result's `info` field). v1.0 profiled a superseded configuration from `run_arch_search_v3.py` (full Hebbian + per-frequency resonance, 53.78 M parameters). All E20 figures were re-measured.
-- **Corrected the per-modality comparison.** The reset-regime runs are slightly *better* than unigram on text (by 0.01–0.22 nats) and *worse* on code (by 0.15–0.30 nats); the continuous run E25 is worse on both. v1.0 said "no better on text".
-- **Corrected E21 vs E25.** Their warm macro NLLs (7.229392 vs 7.229248) are a genuine near-coincidence with different per-domain values. v1.0 suggested a transcription error.
-- **Corrected the contamination analysis.** v1.0's original split re-derivation used an import order that hid the import-time seed. The corrected table (§9.1) reflects each script's natural import order, and separates split overlap (85%) from documents actually trained on (about 45%).
-- **Other corrections from an adversarial re-check:** embedding scale and MemoryFormation (§3); state sensitivity with real embeddings (§8); padding_idx; routing counts; width effect; the 966,000× arithmetic; E0–E7 initial losses; markdown file count; author identities; Fig. 1 now uses per-split baselines; scripts added for every reported check (`scripts/checks/`, `scripts/build_experiments.py`).
-- **New error found in the search paper:** E26's text+code NLL is reported as 8.049, but its own per-domain values (8.718, 8.379) average 8.549.
 
 ---
 
@@ -491,7 +477,7 @@ Every model was trained on the same 128 k tokens (the repository's 26 original d
 
 ![Training probe](figures/fig2_training_probe.png)
 
-*The E20-like and E34-like runs use the corrected probe, which discards SparseHebbian updates accumulated on validation windows. With that leak (v1.0 and an intermediate run) they scored 0.03–0.04 nats better (7.872, 7.740). The v1.0 "E20-like" curve was the E14-like configuration and is relabelled. Run-to-run variation between repeats is about ±0.03 nats.*
+*The probe discards SparseHebbian updates accumulated on validation windows. Without that step, validation data leaks into W and the E20-like and E34-like runs score 0.03–0.04 nats better (7.872, 7.740). Repeated runs vary by about ±0.03 nats.*
 
 - The v3 recipes are a large improvement over v1/v2, confirming the *direction* of the E0 → E20 ladder.
 - **No Cell variant beats a stateless bigram model.** v3 with the default config reproduces v1 bit for bit.
@@ -679,7 +665,7 @@ None of this rules out cellular-memory-inspired computation. It means the hypoth
 - Independent sub-agents re-checked the bibliography against primary sources and adversarially re-checked the quantitative claims.
 - The person who uploads this record is responsible for its content and should list authorship and AI use according to Zenodo's and their institution's policies.
 
-**Data and code availability.** Everything is in the supplementary archive `CellAI-audit-v1.1.zip`, with SHA-256 checksums (`SHA256SUMS`).
+**Data and code availability.** Everything is in the supplementary archive `CellAI-audit.zip`, with SHA-256 checksums (`SHA256SUMS`).
 
 - **Audited code:** the full repository with its history (`repository/`).
 - **This study:** scripts, derived data and figures (`repository/CellAI/docs/audit/`).
@@ -820,7 +806,7 @@ Yin, J. C. P., Wallach, J. S., Del Vecchio, M., Wilder, E. L., Zhou, H., Quinn, 
 
 Zhang, Y., Liu, R.-Y., Heberton, G. A., Smolen, P., Baxter, D. A., Cleary, L. J., & Byrne, J. H. (2012). Computational design of enhanced learning protocols. *Nature Neuroscience*, 15, 294–297. https://doi.org/10.1038/nn.2990
 
-**Supplementary archive.** CellAI-audit-v1.1.zip. The CellAI repository at commit `a109790` plus this audit (`repository/`), source material (`provenance/`) and the paper (`paper/`). Published with this record.
+**Supplementary archive.** CellAI-audit.zip. The CellAI repository at commit `a109790` plus this audit (`repository/`), source material (`provenance/`) and the paper (`paper/`). Published with this record.
 
 ---
 
@@ -879,7 +865,7 @@ python docs/audit/build/build_pdf.py
 
 ## Appendix B: Files
 
-**Supplementary archive** (`CellAI-audit-v1.1.zip`):
+**Supplementary archive** (`CellAI-audit.zip`):
 
 | Path | Content |
 |---|---|
@@ -897,9 +883,9 @@ python docs/audit/build/build_pdf.py
 | File | Content |
 |---|---|
 | `data/experiments.csv` | 38 rows: id, wave, change, D, steps, params, macro NLL/PPL, text+code NLL, latency, outcome, source, notes |
-| `data/profiling_results.json` | Runtime measurements (v1.0 run; E20 rows there are the E14-like configuration) |
-| `data/profiling_E20_corrected.json` | Corrected E20 benchmark and profiler output |
-| `data/train_v3_E20like_corrected.json`, `data/train_v3_E34like_corrected.json` | Corrected E20-like and E34-like training-probe runs |
+| `data/profiling_results.json` | Runtime measurements for all models. Its `v3_E20` rows use the E14-like configuration (full Hebbian + per-frequency resonance); the true E20 is in `profiling_E20.json` |
+| `data/profiling_E20.json` | E20 benchmark and profiler output |
+| `data/train_v3_E20like.json`, `data/train_v3_E34like.json` | E20-like and E34-like training-probe runs |
 | `data/ngram_split_A_v1-v4.json`, `data/ngram_split_B_v5-v7.json` | Baseline NLLs per modality, 50-doc and full eval sets, sampling s.d. |
 | `data/spacing_effect_results.json` | Massed-spaced simulation outputs |
 | `figures/fig1–fig8` | Baselines, training probe, parameters, PDE scaling, Hebbian scaling, best-so-far, outcomes by wave, spacing effect |

@@ -1,10 +1,10 @@
-"""Build the supplementary archive CellAI-audit-v<version>.zip cited by the paper.
+"""Build the supplementary archive CellAI-audit.zip cited by the paper.
 
 Usage:
   python docs/audit/build/make_archive.py --ideas PATH_TO_IDEAS_CLONE --cypha PATH_TO_CYPHA_CLONE [--out DIR]
 
 The Ideas clone must contain commit 7e24624 (raw results). The Cypha clone needs docs/history/.
-Layout of the archive (top folder CellAI-audit-v<version>/):
+Layout of the archive (top folder CellAI-audit/):
   README.md, SHA256SUMS
   paper/                      CELLAI_AUDIT_PAPER.pdf and .md
   repository/CellAI/          working tree of the CellAI repository at HEAD
@@ -49,7 +49,7 @@ def main():
     a = ap.parse_args()
     md = open(os.path.join(REPO, "docs/audit/CELLAI_AUDIT_PAPER.md"), encoding="utf-8").read()
     version = re.search(r'^version:\s*"([^"]+)"', md, re.M).group(1)
-    name = f"CellAI-audit-v{version}"
+    name = "CellAI-audit"
     tmp = tempfile.mkdtemp(); root = os.path.join(tmp, name)
     os.makedirs(os.path.join(root, "repository")); os.makedirs(os.path.join(root, "paper"))
     prov = os.path.join(root, "provenance")

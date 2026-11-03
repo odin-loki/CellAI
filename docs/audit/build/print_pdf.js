@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
     path: out, format: 'A4', printBackground: true, displayHeaderFooter: true,
     headerTemplate: '<span></span>',
     footerTemplate: '<div style="font-size:7.5pt;width:100%;text-align:center;color:#666;">' +
-      'CellAI: independent profile, biological assessment and audit (v1.1) - ' +
+      'CellAI: independent profile, biological assessment and audit - ' +
       '<span class="pageNumber"></span>/<span class="totalPages"></span></div>',
     margin: { top: '18mm', bottom: '20mm', left: '16mm', right: '16mm' },
   });

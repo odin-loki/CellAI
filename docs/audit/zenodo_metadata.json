@@ -11,7 +11,7 @@
       }
     ],
     "description": "Independent profile, data-mining study, biological assessment and audit of CellAI, a language model built from the biology of non-neural cellular memory (Kukushkin et al., 2024, Nat. Commun. 15:9635). We trace the provenance from the massed-spaced experiment to the code and test the founding protocols on CellAI's own dynamics: the core equation is provably exposure-only and the implemented PDEs show no spacing effect. We then profile the code, recover the raw results, and build count-based baselines under the project's exact data and protocol. The reported text+code champions (7.85-8.04 nats/token) score at the level of a unigram model (7.87-7.91); the best run (E34) gains from a bypass around the cellular core. Every Wave 2-4 result is evaluated on an eval set ~85% of which lies in an ancestor checkpoint's training split (~45% actually trained on). Headline figures (966,000x; 125.8M parameters; E20 macro NLL 5.190) are corrected. Produced with AI assistance (Claude Code); see the paper's statements.",
-    "version": "1.1",
+    "version": "1.0",
     "publication_date": "2026-11-03",
     "language": "eng",
     "access_right": "open",
@@ -37,6 +37,6 @@
         "scheme": "doi"
       }
     ],
-    "notes": "Supplementary archive CellAI-audit-v1.1.zip (uploaded with this record) contains the audited repository with full git history, all scripts and data of this study, and provenance material; the paper cites files by their archive paths."
+    "notes": "Supplementary archive CellAI-audit.zip (uploaded with this record) contains the audited repository with full git history, all scripts and data of this study, and provenance material; the paper cites files by their archive paths."
   }
 }
